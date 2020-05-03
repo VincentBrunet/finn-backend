@@ -1,50 +1,65 @@
-import axios from "axios";
+import axios from 'axios';
 
-import { promises as fs } from "fs";
+import { FileSystem } from './FileSystem';
 
-import { URL } from "url";
+import { URL } from 'url';
 
 const debug = true;
 
 export class HttpCache {
-  private static readonly directory = "./cache";
+  private static readonly directory = './cache';
+
+  static async prepare() {
+    const files = await FileSystem.list(HttpCache.directory);
+    for (const file of files) {
+      if (file.endsWith('.lock')) {
+        if (debug) {
+          console.log('HTTP-CACHE >> CLEANUP >>', file);
+        }
+        await FileSystem.delete(`${HttpCache.directory}/${file}`);
+      }
+    }
+  }
+
+  static async get(url: string, extension: string, code: string) {
+    const simplified = HttpCache.simplify(url);
+    const path = `${HttpCache.directory}/${simplified}-${code}.${extension}`;
+    const lock = path + '.lock';
+
+    await FileSystem.mkdir(HttpCache.directory);
+    await FileSystem.wait(lock);
+
+    let data: string;
+    try {
+      const buffer = await FileSystem.read(path);
+      if (debug) {
+        console.log('HTTP-CACHE >> HIT! >>', url);
+      }
+      data = buffer.toString();
+    } catch (e) {
+      await FileSystem.lock(lock);
+      const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+      });
+      const buffer = response.data;
+      if (debug) {
+        console.log('HTTP-CACHE >> MISS >>', url);
+      }
+      data = buffer.toString();
+      await FileSystem.write(path, buffer);
+      await FileSystem.unlock(lock);
+    }
+    return data;
+  }
 
   private static simplify(url: string) {
     const parsed = new URL(url);
-    let cleaned = parsed.hostname + "-" + parsed.pathname;
-    cleaned = cleaned.replace(/\//g, "-");
-    cleaned = cleaned.replace(/\:/g, "-");
-    cleaned = cleaned.replace(/\./g, "-");
-    cleaned = cleaned.replace(/\-\-/g, "-");
-    cleaned = cleaned.replace(/\-\-/g, "-");
+    let cleaned = parsed.hostname + '-' + parsed.pathname;
+    cleaned = cleaned.replace(/\//g, '-');
+    cleaned = cleaned.replace(/\:/g, '-');
+    cleaned = cleaned.replace(/\./g, '-');
+    cleaned = cleaned.replace(/\-\-/g, '-');
+    cleaned = cleaned.replace(/\-\-/g, '-');
     return cleaned;
-  }
-
-  public static async get(url: string, extension: string, code: string) {
-    const hash = HttpCache.simplify(url) + "-" + code;
-    const path = HttpCache.directory + "/" + hash + "." + (extension ?? "txt");
-    await fs.mkdir(HttpCache.directory, { recursive: true });
-    try {
-      const buffer = await fs.readFile(path);
-      if (debug) {
-        console.log(">> Cache hit", url);
-      }
-      const data = buffer.toString();
-      return data;
-    } catch (e) {
-      if (debug) {
-        console.log(">> Cache MISS", url);
-      }
-      const response = await axios.get(url, {
-        responseType: "arraybuffer",
-      });
-      const data: string = response.data.toString();
-      try {
-        await fs.writeFile(path, data);
-      } catch (e) {
-        console.error("Could not save", e);
-      }
-      return data;
-    }
   }
 }
