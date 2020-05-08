@@ -58,7 +58,7 @@ var Api = /** @class */ (function () {
             });
         });
     };
-    Api.balanceSheets = function (ticker) {
+    Api.balanceSheetStatementsYearly = function (ticker) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -68,11 +68,111 @@ var Api = /** @class */ (function () {
             });
         });
     };
-    Api.balanceSheetsQuarterly = function (ticker) {
+    Api.incomeStatementsYearly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("income-statement/" + ticker, {}, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.cashflowStatementsYearly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("cash-flow-statement/" + ticker, {}, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.financialRatiosYearly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("ratios/" + ticker, {}, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.financialKeyMetricsYearly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("key-metrics/" + ticker, {}, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.enterpriseValuesYearly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("enterprise-values/" + ticker, {}, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.balanceSheetStatementsQuarterly = function (ticker) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Api.get("balance-sheet-statement/" + ticker, { period: 'quarter' }, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.incomeStatementsQuarterly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("income-statement/" + ticker, { period: 'quarter' }, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.cashflowStatementsQuarterly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("cash-flow-statement/" + ticker, { period: 'quarter' }, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.financialRatiosQuarterly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("ratios/" + ticker, { period: 'quarter' }, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.financialKeyMetricsQuarterly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("key-metrics/" + ticker, { period: 'quarter' }, Api.today())];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Api.enterpriseValuesQuarterly = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Api.get("enterprise-values/" + ticker, { period: 'quarter' }, Api.today())];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -91,10 +191,10 @@ var Api = /** @class */ (function () {
                         })
                             .join('&');
                         url = "https://fmpcloud.io/api/v3/" + route + "?" + param;
-                        return [4 /*yield*/, HttpCache_1.HttpCache.get(url, 'json', code)];
+                        return [4 /*yield*/, HttpCache_1.HttpCache.getNoThrow(url, 'json', code)];
                     case 1:
                         data = _a.sent();
-                        return [2 /*return*/, JSON.parse(data)];
+                        return [2 /*return*/, JSON.parse(data !== null && data !== void 0 ? data : '[]')];
                 }
             });
         });

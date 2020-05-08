@@ -35,10 +35,15 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var moment_1 = __importDefault(require("moment"));
 var Api_1 = require("../services/financials/Api");
 var Metric_1 = require("../services/database/Metric");
 var Ticker_1 = require("../services/database/Ticker");
+var Value_1 = require("../services/database/Value");
 var BalanceSheets = /** @class */ (function () {
     function BalanceSheets() {
         this.delay = 0;
@@ -46,72 +51,87 @@ var BalanceSheets = /** @class */ (function () {
     }
     BalanceSheets.prototype.run = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var tickers, metrics, stocks, tickersNew, i, balanceSheets, metricsNew, _i, balanceSheets_1, balanceSheet, _a, _b, key, _c, balanceSheets_2, balanceSheet, _d, _e, key;
-            return __generator(this, function (_f) {
-                switch (_f.label) {
-                    case 0: return [4 /*yield*/, Ticker_1.Ticker.bySymbol()];
+            var tickers, metrics, _i, tickers_1, ticker, balanceSheets, i, metricsNew, _a, balanceSheets_1, balanceSheet, _b, _c, key, _d, balanceSheets_2, balanceSheet, ticker, stamp, _e, _f, key, metric;
+            return __generator(this, function (_g) {
+                switch (_g.label) {
+                    case 0: return [4 /*yield*/, Ticker_1.Ticker.list()];
                     case 1:
-                        tickers = _f.sent();
+                        tickers = _g.sent();
                         return [4 /*yield*/, Metric_1.Metric.byName()];
                     case 2:
-                        metrics = _f.sent();
-                        return [4 /*yield*/, Api_1.Api.stocks()];
+                        metrics = _g.sent();
+                        _i = 0, tickers_1 = tickers;
+                        _g.label = 3;
                     case 3:
-                        stocks = _f.sent();
-                        tickersNew = stocks.map(function (v) {
-                            var _a, _b;
-                            return {
-                                symbol: v.symbol,
-                                name: (_a = v.name) !== null && _a !== void 0 ? _a : v.symbol,
-                                exchange: (_b = v.exchange) !== null && _b !== void 0 ? _b : '',
-                            };
-                        });
-                        return [4 /*yield*/, this.updateTickers(tickers, tickersNew)];
-                    case 4:
-                        tickers = _f.sent();
-                        i = 0;
-                        _f.label = 5;
-                    case 5:
-                        if (!(i < stocks.length)) return [3 /*break*/, 9];
+                        if (!(_i < tickers_1.length)) return [3 /*break*/, 6];
+                        ticker = tickers_1[_i];
                         return [4 /*yield*/, Api_1.Api.balanceSheets(stocks[i].symbol)];
+                    case 4:
+                        balanceSheets = _g.sent();
+                        _g.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 3];
                     case 6:
-                        balanceSheets = _f.sent();
+                        i = 0;
+                        _g.label = 7;
+                    case 7:
+                        if (!(i < stocks.length)) return [3 /*break*/, 10];
                         metricsNew = [];
-                        for (_i = 0, balanceSheets_1 = balanceSheets; _i < balanceSheets_1.length; _i++) {
-                            balanceSheet = balanceSheets_1[_i];
-                            for (_a = 0, _b = Object.keys(balanceSheet); _a < _b.length; _a++) {
-                                key = _b[_a];
+                        for (_a = 0, balanceSheets_1 = balanceSheets; _a < balanceSheets_1.length; _a++) {
+                            balanceSheet = balanceSheets_1[_a];
+                            for (_b = 0, _c = Object.keys(balanceSheet); _b < _c.length; _b++) {
+                                key = _c[_b];
                                 if (typeof balanceSheet[key] === 'number') {
                                     metricsNew.push({
-                                        name: key[0].toUpperCase() + key.slice(1),
+                                        name: this.prettyName(key),
                                         category: 'BalanceSheet',
                                     });
                                 }
                             }
                         }
                         return [4 /*yield*/, this.updatedMetrics(metrics, metricsNew)];
-                    case 7:
-                        metrics = _f.sent();
-                        for (_c = 0, balanceSheets_2 = balanceSheets; _c < balanceSheets_2.length; _c++) {
-                            balanceSheet = balanceSheets_2[_c];
-                            //const date =
-                            for (_d = 0, _e = Object.keys(balanceSheet); _d < _e.length; _d++) {
-                                key = _e[_d];
+                    case 8:
+                        metrics = _g.sent();
+                        for (_d = 0, balanceSheets_2 = balanceSheets; _d < balanceSheets_2.length; _d++) {
+                            balanceSheet = balanceSheets_2[_d];
+                            ticker = tickers.get(balanceSheet['symbol']);
+                            if (!ticker || !ticker.id) {
+                                console.log('NoTicker', balanceSheet, ticker);
+                                continue;
+                            }
+                            stamp = moment_1.default(balanceSheet['date']);
+                            for (_e = 0, _f = Object.keys(balanceSheet); _e < _f.length; _e++) {
+                                key = _f[_e];
                                 if (typeof balanceSheet[key] === 'number') {
+                                    metric = metrics.get(this.prettyName(key));
+                                    if (!metric || !metric.id) {
+                                        console.log('NoMetric', this.prettyName(key), metric);
+                                        continue;
+                                    }
+                                    Value_1.Value.insertIgnoreFailure({
+                                        ticker_id: ticker.id,
+                                        metric_id: metric.id,
+                                        moment: stamp.format(),
+                                        value: balanceSheet[key],
+                                    });
                                 }
                             }
                         }
                         if (i > 10) {
-                            return [3 /*break*/, 9];
+                            return [3 /*break*/, 10];
                         }
-                        _f.label = 8;
-                    case 8:
+                        _g.label = 9;
+                    case 9:
                         i++;
-                        return [3 /*break*/, 5];
-                    case 9: return [2 /*return*/];
+                        return [3 /*break*/, 7];
+                    case 10: return [2 /*return*/];
                 }
             });
         });
+    };
+    BalanceSheets.prototype.prettyName = function (name) {
+        return name[0].toUpperCase() + name.slice(1);
     };
     BalanceSheets.prototype.updatedMetrics = function (index, metrics) {
         return __awaiter(this, void 0, void 0, function () {
@@ -140,15 +160,15 @@ var BalanceSheets = /** @class */ (function () {
     };
     BalanceSheets.prototype.updateTickers = function (index, tickers) {
         return __awaiter(this, void 0, void 0, function () {
-            var _i, tickers_1, ticker;
+            var _i, tickers_2, ticker;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _i = 0, tickers_1 = tickers;
+                        _i = 0, tickers_2 = tickers;
                         _a.label = 1;
                     case 1:
-                        if (!(_i < tickers_1.length)) return [3 /*break*/, 4];
-                        ticker = tickers_1[_i];
+                        if (!(_i < tickers_2.length)) return [3 /*break*/, 4];
+                        ticker = tickers_2[_i];
                         if (!!index.has(ticker.symbol)) return [3 /*break*/, 3];
                         return [4 /*yield*/, Ticker_1.Ticker.insert(ticker)];
                     case 2:

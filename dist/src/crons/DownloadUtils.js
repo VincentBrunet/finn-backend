@@ -35,46 +35,60 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-function up(knex) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .createTable('ticker', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('symbol', 31).notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('exchange', 255).notNullable();
-                    table.unique(['symbol']);
-                })
-                    .createTable('metric', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('category', 255).notNullable();
-                    table.string('period', 255).notNullable();
-                    table.unique(['name', 'category', 'period']);
-                })
-                    .createTable('value', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.integer('ticker_id').unsigned().references('id').inTable('ticker').notNullable();
-                    table.integer('metric_id').unsigned().references('id').inTable('metric').notNullable();
-                    table.dateTime('stamp').notNullable();
-                    table.float('value', 14, 10).notNullable();
-                    table.unique(['ticker_id', 'metric_id', 'stamp']);
-                })];
+var moment_1 = __importDefault(require("moment"));
+var Metric_1 = require("../services/database/Metric");
+var Value_1 = require("../services/database/Value");
+var DownloadUtils = /** @class */ (function () {
+    function DownloadUtils() {
+    }
+    DownloadUtils.uploadValues = function (object, ticker, category, period) {
+        return __awaiter(this, void 0, void 0, function () {
+            var stamp, _a, _b, _i, key, value, metric;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (!ticker.id) {
+                            return [2 /*return*/];
+                        }
+                        stamp = moment_1.default(object['date']).format();
+                        _a = [];
+                        for (_b in object)
+                            _a.push(_b);
+                        _i = 0;
+                        _c.label = 1;
+                    case 1:
+                        if (!(_i < _a.length)) return [3 /*break*/, 5];
+                        key = _a[_i];
+                        value = object[key];
+                        if (!(typeof value === 'number')) return [3 /*break*/, 4];
+                        return [4 /*yield*/, Metric_1.Metric.getOrMake(key, category, period)];
+                    case 2:
+                        metric = _c.sent();
+                        if (!metric || !metric.id) {
+                            return [3 /*break*/, 4];
+                        }
+                        return [4 /*yield*/, Value_1.Value.insertIgnoreFailure({
+                                ticker_id: ticker.id,
+                                metric_id: metric.id,
+                                stamp: stamp,
+                                value: value,
+                            })];
+                    case 3:
+                        _c.sent();
+                        _c.label = 4;
+                    case 4:
+                        _i++;
+                        return [3 /*break*/, 1];
+                    case 5: return [2 /*return*/];
+                }
+            });
         });
-    });
-}
-exports.up = up;
-function down(knex) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .dropTableIfExists('value')
-                    .dropTableIfExists('metric')
-                    .dropTableIfExists('ticker')];
-        });
-    });
-}
-exports.down = down;
-//# sourceMappingURL=20200506233741_initial.js.map
+    };
+    return DownloadUtils;
+}());
+exports.DownloadUtils = DownloadUtils;
+//# sourceMappingURL=DownloadUtils.js.map

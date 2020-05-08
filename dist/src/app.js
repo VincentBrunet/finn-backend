@@ -41,7 +41,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var Test_1 = require("./routes/Test");
-var BalanceSheets_1 = require("./crons/BalanceSheets");
+var DownloadTickers_1 = require("./crons/DownloadTickers");
+var DownloadIncomeStatements_1 = require("./crons/DownloadIncomeStatements");
+var DownloadCashflowStatements_1 = require("./crons/DownloadCashflowStatements");
+var DownloadBalanceSheetStatements_1 = require("./crons/DownloadBalanceSheetStatements");
+var DownloadFinancialRatios_1 = require("./crons/DownloadFinancialRatios");
+var DownloadFinancialKeyMetrics_1 = require("./crons/DownloadFinancialKeyMetrics");
 var App = /** @class */ (function () {
     function App() {
         this.app = express_1.default();
@@ -77,7 +82,12 @@ var App = /** @class */ (function () {
     };
     App.prototype.listen = function (port, done) {
         this.app.listen(port, done);
-        this.run(new BalanceSheets_1.BalanceSheets());
+        this.run(new DownloadTickers_1.DownloadTickers());
+        this.run(new DownloadIncomeStatements_1.DownloadIncomeStatements());
+        this.run(new DownloadCashflowStatements_1.DownloadCashflowStatements());
+        this.run(new DownloadBalanceSheetStatements_1.DownloadBalanceSheetStatements());
+        this.run(new DownloadFinancialRatios_1.DownloadFinancialRatios());
+        this.run(new DownloadFinancialKeyMetrics_1.DownloadFinancialKeyMetrics());
     };
     App.prototype.run = function (cron) {
         var _this = this;

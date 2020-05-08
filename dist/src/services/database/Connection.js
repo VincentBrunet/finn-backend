@@ -44,7 +44,7 @@ var knexfile_1 = __importDefault(require("../../config/knexfile"));
 var Connection = /** @class */ (function () {
     function Connection() {
     }
-    Connection.get = function () {
+    Connection.connect = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _a;
             return __generator(this, function (_b) {
@@ -57,6 +57,103 @@ var Connection = /** @class */ (function () {
                         _a.knex = _b.sent();
                         _b.label = 2;
                     case 2: return [2 /*return*/, Connection.knex];
+                }
+            });
+        });
+    };
+    /**
+     * Base operations
+     */
+    Connection.get = function (table, id) {
+        return __awaiter(this, void 0, void 0, function () {
+            var connection, handle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        handle = connection(table);
+                        return [4 /*yield*/, handle.select('*').where('id', id)];
+                    case 2: return [2 /*return*/, (_a.sent())[0]];
+                }
+            });
+        });
+    };
+    Connection.list = function (table) {
+        return __awaiter(this, void 0, void 0, function () {
+            var connection, handle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        handle = connection(table);
+                        return [4 /*yield*/, handle.select('*')];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Connection.insert = function (table, value) {
+        return __awaiter(this, void 0, void 0, function () {
+            var connection, handle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (value.id !== undefined) {
+                            throw Error('Cannot insert with an id');
+                        }
+                        return [4 /*yield*/, Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        handle = connection(table);
+                        return [4 /*yield*/, handle.insert(value)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Connection.update = function (table, value) {
+        return __awaiter(this, void 0, void 0, function () {
+            var connection, handle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (value.id === undefined) {
+                            throw Error('Cannot update without an id');
+                        }
+                        return [4 /*yield*/, Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        handle = connection(table);
+                        return [4 /*yield*/, handle.update(value).where('id', value.id)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Base operations wrappers
+     */
+    Connection.insertIgnoreFailure = function (table, value) {
+        return __awaiter(this, void 0, void 0, function () {
+            var e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, Connection.insert(table, value)];
+                    case 1:
+                        _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        e_1 = _a.sent();
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         });

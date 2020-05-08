@@ -42,94 +42,108 @@ var Metric = /** @class */ (function () {
     }
     Metric.list = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.get()];
-                    case 1:
-                        connection = _a.sent();
-                        handle = connection(Metric.table);
-                        return [4 /*yield*/, handle.select('*')];
-                    case 2: return [2 /*return*/, _a.sent()];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.list(Metric.table)];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
     Metric.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        if (value.id !== undefined) {
-                            throw Error('Cannot insert with an id');
-                        }
-                        return [4 /*yield*/, Connection_1.Connection.get()];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Metric.table, value)];
                     case 1:
-                        connection = _a.sent();
-                        handle = connection(Metric.table);
-                        return [4 /*yield*/, handle.insert(value)];
-                    case 2: return [2 /*return*/, _a.sent()];
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
     };
     Metric.update = function (value) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Metric.table, value)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Metric.insertIgnoreFailure = function (value) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insertIgnoreFailure(Metric.table, value)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Metric.cacheKey = function (name, category, period) {
+        var uppercaseName = name.toUpperCase();
+        var uppercaseCategory = category.toUpperCase();
+        var uppercasePeriod = period.toUpperCase();
+        return uppercaseName + ":" + uppercaseCategory + ":" + uppercasePeriod;
+    };
+    Metric.makeCache = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _i, _a, metric, key;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        Metric.cache = new Map();
+                        _i = 0;
+                        return [4 /*yield*/, Metric.list()];
+                    case 1:
+                        _a = _b.sent();
+                        _b.label = 2;
+                    case 2:
+                        if (!(_i < _a.length)) return [3 /*break*/, 4];
+                        metric = _a[_i];
+                        key = Metric.cacheKey(metric.name, metric.category, metric.period);
+                        Metric.cache.set(key, metric);
+                        _b.label = 3;
+                    case 3:
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Metric.getOrMake = function (name, category, period) {
+        return __awaiter(this, void 0, void 0, function () {
+            var key;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        if (value.id === undefined) {
-                            throw Error('Cannot update without an id');
-                        }
-                        return [4 /*yield*/, Connection_1.Connection.get()];
+                        if (!!Metric.cache) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Metric.makeCache()];
                     case 1:
-                        connection = _a.sent();
-                        handle = connection(Metric.table);
-                        return [4 /*yield*/, handle.update(value).where('id', value.id)];
-                    case 2: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    /**
-     * Utils
-     */
-    Metric.byName = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var list, mapping, _i, list_1, item;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, Metric.list()];
-                    case 1:
-                        list = _a.sent();
-                        mapping = new Map();
-                        for (_i = 0, list_1 = list; _i < list_1.length; _i++) {
-                            item = list_1[_i];
-                            mapping.set(item.name, item);
-                        }
-                        return [2 /*return*/, mapping];
-                }
-            });
-        });
-    };
-    Metric.byId = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var list, mapping, _i, list_2, item;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, Metric.list()];
-                    case 1:
-                        list = _a.sent();
-                        mapping = new Map();
-                        for (_i = 0, list_2 = list; _i < list_2.length; _i++) {
-                            item = list_2[_i];
-                            if (item.id) {
-                                mapping.set(item.id, item);
-                            }
-                        }
-                        return [2 /*return*/, mapping];
+                        _a.sent();
+                        _a.label = 2;
+                    case 2:
+                        key = Metric.cacheKey(name, category, period);
+                        if (!!Metric.cache.has(key)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, Metric.insertIgnoreFailure({
+                                name: name[0].toUpperCase() + name.slice(1),
+                                category: category,
+                                period: period,
+                            })];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, Metric.makeCache()];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5: return [2 /*return*/, Metric.cache.get(key)];
                 }
             });
         });

@@ -51,33 +51,54 @@ var HttpCache = /** @class */ (function () {
             var files, _i, files_1, file;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, FileSystem_1.FileSystem.list(HttpCache.directory)];
+                    case 0: return [4 /*yield*/, FileSystem_1.FileSystem.mkdir(HttpCache.directory)];
                     case 1:
+                        _a.sent();
+                        return [4 /*yield*/, FileSystem_1.FileSystem.list(HttpCache.directory)];
+                    case 2:
                         files = _a.sent();
                         _i = 0, files_1 = files;
-                        _a.label = 2;
-                    case 2:
-                        if (!(_i < files_1.length)) return [3 /*break*/, 5];
+                        _a.label = 3;
+                    case 3:
+                        if (!(_i < files_1.length)) return [3 /*break*/, 6];
                         file = files_1[_i];
-                        if (!file.endsWith('.lock')) return [3 /*break*/, 4];
+                        if (!file.endsWith('.lock')) return [3 /*break*/, 5];
                         if (debug) {
                             console.log('HTTP-CACHE >> CLEANUP >>', file);
                         }
                         return [4 /*yield*/, FileSystem_1.FileSystem.delete(HttpCache.directory + "/" + file)];
-                    case 3:
-                        _a.sent();
-                        _a.label = 4;
                     case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5:
                         _i++;
-                        return [3 /*break*/, 2];
-                    case 5: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    HttpCache.getNoThrow = function (url, extension, code) {
+        return __awaiter(this, void 0, void 0, function () {
+            var e_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, HttpCache.get(url, extension, code)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                    case 2:
+                        e_1 = _a.sent();
+                        console.log('Http fail', url, e_1);
+                        return [2 /*return*/, undefined];
+                    case 3: return [2 /*return*/];
                 }
             });
         });
     };
     HttpCache.get = function (url, extension, code) {
         return __awaiter(this, void 0, void 0, function () {
-            var simplified, path, lock, data, buffer, e_1, response, buffer;
+            var simplified, path, lock, data, buffer, e_2, response, buffer;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -102,7 +123,7 @@ var HttpCache = /** @class */ (function () {
                         data = buffer.toString();
                         return [3 /*break*/, 10];
                     case 5:
-                        e_1 = _a.sent();
+                        e_2 = _a.sent();
                         return [4 /*yield*/, FileSystem_1.FileSystem.lock(lock)];
                     case 6:
                         _a.sent();

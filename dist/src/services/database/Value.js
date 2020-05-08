@@ -42,19 +42,24 @@ var Value = /** @class */ (function () {
     }
     Value.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        if (value.id !== undefined) {
-                            throw Error('Cannot insert with an id');
-                        }
-                        return [4 /*yield*/, Connection_1.Connection.get()];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Value.table, value)];
                     case 1:
-                        connection = _a.sent();
-                        handle = connection(Value.table);
-                        return [4 /*yield*/, handle.insert(value)];
-                    case 2: return [2 /*return*/, _a.sent()];
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Value.insertIgnoreFailure = function (value) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insertIgnoreFailure(Value.table, value)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
@@ -62,7 +67,7 @@ var Value = /** @class */ (function () {
     /**
      * Base
      */
-    Value.table = 'ticker';
+    Value.table = 'value';
     return Value;
 }());
 exports.Value = Value;

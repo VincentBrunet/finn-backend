@@ -10,6 +10,7 @@ export class HttpCache {
   private static readonly directory = './cache';
 
   static async prepare() {
+    await FileSystem.mkdir(HttpCache.directory);
     const files = await FileSystem.list(HttpCache.directory);
     for (const file of files) {
       if (file.endsWith('.lock')) {
@@ -21,6 +22,14 @@ export class HttpCache {
     }
   }
 
+  static async getNoThrow(url: string, extension: string, code: string) {
+    try {
+      return await HttpCache.get(url, extension, code);
+    } catch (e) {
+      console.log('Http fail', url, e);
+      return undefined;
+    }
+  }
   static async get(url: string, extension: string, code: string) {
     const simplified = HttpCache.simplify(url);
     const path = `${HttpCache.directory}/${simplified}-${code}.${extension}`;

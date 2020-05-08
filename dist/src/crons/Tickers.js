@@ -36,45 +36,48 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-function up(knex) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .createTable('ticker', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('symbol', 31).notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('exchange', 255).notNullable();
-                    table.unique(['symbol']);
-                })
-                    .createTable('metric', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('category', 255).notNullable();
-                    table.string('period', 255).notNullable();
-                    table.unique(['name', 'category', 'period']);
-                })
-                    .createTable('value', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.integer('ticker_id').unsigned().references('id').inTable('ticker').notNullable();
-                    table.integer('metric_id').unsigned().references('id').inTable('metric').notNullable();
-                    table.dateTime('stamp').notNullable();
-                    table.float('value', 14, 10).notNullable();
-                    table.unique(['ticker_id', 'metric_id', 'stamp']);
-                })];
+var Api_1 = require("../services/financials/Api");
+var Ticker_1 = require("../services/database/Ticker");
+var BalanceSheets = /** @class */ (function () {
+    function BalanceSheets() {
+        this.delay = 0;
+        this.repeat = 10000;
+    }
+    BalanceSheets.prototype.run = function () {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function () {
+            var tickers, stocks, _i, stocks_1, stock;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0: return [4 /*yield*/, Ticker_1.Ticker.bySymbol()];
+                    case 1:
+                        tickers = _c.sent();
+                        return [4 /*yield*/, Api_1.Api.stocks()];
+                    case 2:
+                        stocks = _c.sent();
+                        _i = 0, stocks_1 = stocks;
+                        _c.label = 3;
+                    case 3:
+                        if (!(_i < stocks_1.length)) return [3 /*break*/, 6];
+                        stock = stocks_1[_i];
+                        if (!!tickers.has(stock.symbol)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, Ticker_1.Ticker.insert({
+                                symbol: stock.symbol,
+                                name: (_a = stock.name) !== null && _a !== void 0 ? _a : stock.symbol,
+                                exchange: (_b = stock.exchange) !== null && _b !== void 0 ? _b : '',
+                            })];
+                    case 4:
+                        _c.sent();
+                        _c.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 3];
+                    case 6: return [2 /*return*/];
+                }
+            });
         });
-    });
-}
-exports.up = up;
-function down(knex) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .dropTableIfExists('value')
-                    .dropTableIfExists('metric')
-                    .dropTableIfExists('ticker')];
-        });
-    });
-}
-exports.down = down;
-//# sourceMappingURL=20200506233741_initial.js.map
+    };
+    return BalanceSheets;
+}());
+exports.BalanceSheets = BalanceSheets;
+//# sourceMappingURL=Tickers.js.map

@@ -21,7 +21,7 @@
     "ts-node-dev": "^1.0.0-pre.44"
   },
   "scripts": {
-    "dev": "ts-node-dev src/index.ts",
+    "dev": "nodemon dist/src/index.ts",
     "knex:migrate:make": "knex --knexfile ./src/config/knexfile.ts -x ts migrate:make",
     "knex:migrate:latest": "knex --knexfile ./src/config/knexfile.ts migrate:latest",
     "knex:migrate:rollback": "knex --knexfile ./src/config/knexfile.ts migrate:rollback"

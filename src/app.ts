@@ -4,7 +4,13 @@ import { Route } from './routes/Route';
 import { Test } from './routes/Test';
 
 import { Cron } from './crons/Cron';
-import { BalanceSheets } from './crons/BalanceSheets';
+
+import { DownloadTickers } from './crons/DownloadTickers';
+import { DownloadIncomeStatements } from './crons/DownloadIncomeStatements';
+import { DownloadCashflowStatements } from './crons/DownloadCashflowStatements';
+import { DownloadBalanceSheetStatements } from './crons/DownloadBalanceSheetStatements';
+import { DownloadFinancialRatios } from './crons/DownloadFinancialRatios';
+import { DownloadFinancialKeyMetrics } from './crons/DownloadFinancialKeyMetrics';
 
 export class App {
   private app: express.Application;
@@ -33,7 +39,12 @@ export class App {
 
   listen(port: number, done: () => void) {
     this.app.listen(port, done);
-    this.run(new BalanceSheets());
+    this.run(new DownloadTickers());
+    this.run(new DownloadIncomeStatements());
+    this.run(new DownloadCashflowStatements());
+    this.run(new DownloadBalanceSheetStatements());
+    this.run(new DownloadFinancialRatios());
+    this.run(new DownloadFinancialKeyMetrics());
   }
 
   private run(cron: Cron) {

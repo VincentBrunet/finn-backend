@@ -42,53 +42,34 @@ var Ticker = /** @class */ (function () {
     }
     Ticker.list = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.get()];
-                    case 1:
-                        connection = _a.sent();
-                        handle = connection(Ticker.table);
-                        return [4 /*yield*/, handle.select('*')];
-                    case 2: return [2 /*return*/, _a.sent()];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.list(Ticker.table)];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
     Ticker.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        if (value.id !== undefined) {
-                            throw Error('Cannot insert with an id');
-                        }
-                        return [4 /*yield*/, Connection_1.Connection.get()];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Ticker.table, value)];
                     case 1:
-                        connection = _a.sent();
-                        handle = connection(Ticker.table);
-                        return [4 /*yield*/, handle.insert(value)];
-                    case 2: return [2 /*return*/, _a.sent()];
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
     };
     Ticker.update = function (value) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        if (value.id === undefined) {
-                            throw Error('Cannot update without an id');
-                        }
-                        return [4 /*yield*/, Connection_1.Connection.get()];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Ticker.table, value)];
                     case 1:
-                        connection = _a.sent();
-                        handle = connection(Ticker.table);
-                        return [4 /*yield*/, handle.update(value).where('id', value.id)];
-                    case 2: return [2 /*return*/, _a.sent()];
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
@@ -108,26 +89,6 @@ var Ticker = /** @class */ (function () {
                         for (_i = 0, list_1 = list; _i < list_1.length; _i++) {
                             item = list_1[_i];
                             mapping.set(item.symbol, item);
-                        }
-                        return [2 /*return*/, mapping];
-                }
-            });
-        });
-    };
-    Ticker.byId = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var list, mapping, _i, list_2, item;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, Ticker.list()];
-                    case 1:
-                        list = _a.sent();
-                        mapping = new Map();
-                        for (_i = 0, list_2 = list; _i < list_2.length; _i++) {
-                            item = list_2[_i];
-                            if (item.id) {
-                                mapping.set(item.id, item);
-                            }
                         }
                         return [2 /*return*/, mapping];
                 }
