@@ -14,8 +14,10 @@ export async function up(knex: Knex): Promise<any> {
     .createTable('metric', (table: Knex.CreateTableBuilder) => {
       table.increments('id').primary().notNullable();
 
+      table.string('key', 1023).notNullable();
       table.string('name', 255).notNullable();
       table.string('category', 255).notNullable();
+      table.string('identifier', 511).notNullable();
       table.string('period', 255).notNullable();
 
       table.unique(['name', 'category', 'period']);

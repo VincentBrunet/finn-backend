@@ -36,47 +36,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-function up(knex) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .createTable('ticker', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('symbol', 31).notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('exchange', 255).notNullable();
-                    table.unique(['symbol']);
-                })
-                    .createTable('metric', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('key', 1023).notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('category', 255).notNullable();
-                    table.string('identifier', 511).notNullable();
-                    table.string('period', 255).notNullable();
-                    table.unique(['name', 'category', 'period']);
-                })
-                    .createTable('value', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.integer('ticker_id').unsigned().references('id').inTable('ticker').notNullable();
-                    table.integer('metric_id').unsigned().references('id').inTable('metric').notNullable();
-                    table.dateTime('stamp').notNullable();
-                    table.float('value', 14, 10).notNullable();
-                    table.unique(['ticker_id', 'metric_id', 'stamp']);
-                })];
+var Api_1 = require("../../services/financials/Api");
+var Table = /** @class */ (function () {
+    function Table() {
+    }
+    Table.prototype.run = function (param) {
+        return __awaiter(this, void 0, void 0, function () {
+            var columns, stocks;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        columns = [{}, {}, {}];
+                        return [4 /*yield*/, Api_1.Api.stocks()];
+                    case 1:
+                        stocks = _a.sent();
+                        return [2 /*return*/, stocks.map(function (v) { return v.symbol; })];
+                }
+            });
         });
-    });
-}
-exports.up = up;
-function down(knex) {
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .dropTableIfExists('value')
-                    .dropTableIfExists('metric')
-                    .dropTableIfExists('ticker')];
-        });
-    });
-}
-exports.down = down;
-//# sourceMappingURL=20200506233741_initial.js.map
+    };
+    return Table;
+}());
+exports.Table = Table;
+//# sourceMappingURL=Table.js.map

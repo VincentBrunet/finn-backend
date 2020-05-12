@@ -35,6 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -42,45 +53,60 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var axios_1 = __importDefault(require("axios"));
 var FileSystem_1 = require("./FileSystem");
 var url_1 = require("url");
-var debug = true;
+var debug = false;
 var HttpCache = /** @class */ (function () {
     function HttpCache() {
     }
     HttpCache.prepare = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var files, _i, files_1, file;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var files, files_1, files_1_1, file, e_1_1;
+            var e_1, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, FileSystem_1.FileSystem.mkdir(HttpCache.directory)];
                     case 1:
-                        _a.sent();
+                        _b.sent();
                         return [4 /*yield*/, FileSystem_1.FileSystem.list(HttpCache.directory)];
                     case 2:
-                        files = _a.sent();
-                        _i = 0, files_1 = files;
-                        _a.label = 3;
+                        files = _b.sent();
+                        _b.label = 3;
                     case 3:
-                        if (!(_i < files_1.length)) return [3 /*break*/, 6];
-                        file = files_1[_i];
-                        if (!file.endsWith('.lock')) return [3 /*break*/, 5];
+                        _b.trys.push([3, 8, 9, 10]);
+                        files_1 = __values(files), files_1_1 = files_1.next();
+                        _b.label = 4;
+                    case 4:
+                        if (!!files_1_1.done) return [3 /*break*/, 7];
+                        file = files_1_1.value;
+                        if (!file.endsWith('.lock')) return [3 /*break*/, 6];
                         if (debug) {
                             console.log('HTTP-CACHE >> CLEANUP >>', file);
                         }
                         return [4 /*yield*/, FileSystem_1.FileSystem.delete(HttpCache.directory + "/" + file)];
-                    case 4:
-                        _a.sent();
-                        _a.label = 5;
                     case 5:
-                        _i++;
-                        return [3 /*break*/, 3];
-                    case 6: return [2 /*return*/];
+                        _b.sent();
+                        _b.label = 6;
+                    case 6:
+                        files_1_1 = files_1.next();
+                        return [3 /*break*/, 4];
+                    case 7: return [3 /*break*/, 10];
+                    case 8:
+                        e_1_1 = _b.sent();
+                        e_1 = { error: e_1_1 };
+                        return [3 /*break*/, 10];
+                    case 9:
+                        try {
+                            if (files_1_1 && !files_1_1.done && (_a = files_1.return)) _a.call(files_1);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                        return [7 /*endfinally*/];
+                    case 10: return [2 /*return*/];
                 }
             });
         });
     };
     HttpCache.getNoThrow = function (url, extension, code) {
         return __awaiter(this, void 0, void 0, function () {
-            var e_1;
+            var e_2;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -88,8 +114,8 @@ var HttpCache = /** @class */ (function () {
                         return [4 /*yield*/, HttpCache.get(url, extension, code)];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2:
-                        e_1 = _a.sent();
-                        console.log('Http fail', url, e_1);
+                        e_2 = _a.sent();
+                        console.log('Http fail', url, e_2);
                         return [2 /*return*/, undefined];
                     case 3: return [2 /*return*/];
                 }
@@ -98,7 +124,7 @@ var HttpCache = /** @class */ (function () {
     };
     HttpCache.get = function (url, extension, code) {
         return __awaiter(this, void 0, void 0, function () {
-            var simplified, path, lock, data, buffer, e_2, response, buffer;
+            var simplified, path, lock, data, buffer, e_3, response, buffer;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -123,7 +149,7 @@ var HttpCache = /** @class */ (function () {
                         data = buffer.toString();
                         return [3 /*break*/, 10];
                     case 5:
-                        e_2 = _a.sent();
+                        e_3 = _a.sent();
                         return [4 /*yield*/, FileSystem_1.FileSystem.lock(lock)];
                     case 6:
                         _a.sent();

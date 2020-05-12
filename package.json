@@ -3,13 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "dependencies": {
+    "@types/cors": "^2.8.6",
     "@types/express": "^4.17.6",
+    "@types/fuzzy-search": "^2.1.0",
     "@types/knex": "^0.16.1",
     "@types/node": "^13.13.4",
     "@types/typescript": "^2.0.0",
     "axios": "^0.19.2",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "fuzzy-search": "^3.2.1",
     "knex": "^0.21.1",
     "moment": "^2.25.1",
     "pg": "^8.0.3",
@@ -21,7 +25,7 @@
     "ts-node-dev": "^1.0.0-pre.44"
   },
   "scripts": {
-    "dev": "nodemon dist/src/index.ts",
+    "dev": "nodemon -w dist dist/src/index.js",
     "knex:migrate:make": "knex --knexfile ./src/config/knexfile.ts -x ts migrate:make",
     "knex:migrate:latest": "knex --knexfile ./src/config/knexfile.ts migrate:latest",
     "knex:migrate:rollback": "knex --knexfile ./src/config/knexfile.ts migrate:rollback"

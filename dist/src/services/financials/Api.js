@@ -180,7 +180,7 @@ var Api = /** @class */ (function () {
     };
     Api.get = function (route, params, code) {
         return __awaiter(this, void 0, void 0, function () {
-            var param, url, data;
+            var param, url, hashed, data;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -191,13 +191,23 @@ var Api = /** @class */ (function () {
                         })
                             .join('&');
                         url = "https://fmpcloud.io/api/v3/" + route + "?" + param;
-                        return [4 /*yield*/, HttpCache_1.HttpCache.getNoThrow(url, 'json', code)];
+                        hashed = Api.hashed(param);
+                        return [4 /*yield*/, HttpCache_1.HttpCache.getNoThrow(url, 'json', hashed + "-" + code)];
                     case 1:
                         data = _a.sent();
                         return [2 /*return*/, JSON.parse(data !== null && data !== void 0 ? data : '[]')];
                 }
             });
         });
+    };
+    Api.hashed = function (str) {
+        var hash = 0;
+        for (var i = 0; i < str.length; i++) {
+            var chr = str.charCodeAt(i);
+            hash = (hash << 5) - hash + chr;
+            hash |= 0;
+        }
+        return Math.abs(hash).toString(16).slice(0, 4);
     };
     return Api;
 }());

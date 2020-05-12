@@ -40,7 +40,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
-var Test_1 = require("./routes/Test");
+var cors_1 = __importDefault(require("cors"));
+var ScreenerTable_1 = require("./routes/screener/ScreenerTable");
 var DownloadTickers_1 = require("./crons/DownloadTickers");
 var DownloadIncomeStatements_1 = require("./crons/DownloadIncomeStatements");
 var DownloadCashflowStatements_1 = require("./crons/DownloadCashflowStatements");
@@ -50,8 +51,9 @@ var DownloadFinancialKeyMetrics_1 = require("./crons/DownloadFinancialKeyMetrics
 var App = /** @class */ (function () {
     function App() {
         this.app = express_1.default();
+        this.app.use(cors_1.default());
         this.app.use(express_1.default.json());
-        this.app.get('/', this.make(new Test_1.Test()));
+        this.app.get('/screener/table', this.make(new ScreenerTable_1.ScreenerTable()));
     }
     App.prototype.make = function (route) {
         var _this = this;

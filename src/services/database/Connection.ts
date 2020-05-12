@@ -2,8 +2,11 @@ import Knex from 'knex';
 
 import knexfile from '../../config/knexfile';
 
+const debug = false;
+
+export interface ModelShell {}
 export interface Model {
-  id?: number;
+  id: number;
 }
 
 export class Connection {
@@ -28,27 +31,27 @@ export class Connection {
     const handle = connection<T>(table);
     return await handle.select('*');
   }
-  static async insert<T extends Model>(table: string, value: T) {
-    if (value.id !== undefined) {
-      throw Error('Cannot insert with an id');
-    }
+  static async insert<T extends ModelShell>(table: string, value: T) {
     const connection = await Connection.connect();
     const handle = connection<T>(table);
+    if (debug) {
+      console.log('insert', value);
+    }
     await handle.insert(value);
   }
   static async update<T extends Model>(table: string, value: T) {
-    if (value.id === undefined) {
-      throw Error('Cannot update without an id');
-    }
     const connection = await Connection.connect();
     const handle = connection<T>(table);
+    if (debug) {
+      console.log('update', value);
+    }
     await handle.update(value).where('id', value.id);
   }
 
   /**
    * Base operations wrappers
    */
-  static async insertIgnoreFailure<T extends Model>(table: string, value: T) {
+  static async insertIgnoreFailure<T extends ModelShell>(table: string, value: T) {
     try {
       await Connection.insert(table, value);
     } catch (e) {}

@@ -41,6 +41,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var knex_1 = __importDefault(require("knex"));
 var knexfile_1 = __importDefault(require("../../config/knexfile"));
+var debug = false;
 var Connection = /** @class */ (function () {
     function Connection() {
     }
@@ -99,14 +100,13 @@ var Connection = /** @class */ (function () {
             var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        if (value.id !== undefined) {
-                            throw Error('Cannot insert with an id');
-                        }
-                        return [4 /*yield*/, Connection.connect()];
+                    case 0: return [4 /*yield*/, Connection.connect()];
                     case 1:
                         connection = _a.sent();
                         handle = connection(table);
+                        if (debug) {
+                            console.log('insert', value);
+                        }
                         return [4 /*yield*/, handle.insert(value)];
                     case 2:
                         _a.sent();
@@ -120,14 +120,13 @@ var Connection = /** @class */ (function () {
             var connection, handle;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        if (value.id === undefined) {
-                            throw Error('Cannot update without an id');
-                        }
-                        return [4 /*yield*/, Connection.connect()];
+                    case 0: return [4 /*yield*/, Connection.connect()];
                     case 1:
                         connection = _a.sent();
                         handle = connection(table);
+                        if (debug) {
+                            console.log('update', value);
+                        }
                         return [4 /*yield*/, handle.update(value).where('id', value.id)];
                     case 2:
                         _a.sent();

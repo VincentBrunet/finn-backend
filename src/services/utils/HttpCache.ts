@@ -4,7 +4,7 @@ import { FileSystem } from './FileSystem';
 
 import { URL } from 'url';
 
-const debug = true;
+const debug = false;
 
 export class HttpCache {
   private static readonly directory = './cache';

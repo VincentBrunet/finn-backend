@@ -39,30 +39,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function up(knex) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .createTable('ticker', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('symbol', 31).notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('exchange', 255).notNullable();
-                    table.unique(['symbol']);
-                })
-                    .createTable('metric', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.string('key', 1023).notNullable();
-                    table.string('name', 255).notNullable();
-                    table.string('category', 255).notNullable();
-                    table.string('identifier', 511).notNullable();
-                    table.string('period', 255).notNullable();
-                    table.unique(['name', 'category', 'period']);
-                })
-                    .createTable('value', function (table) {
-                    table.increments('id').primary().notNullable();
-                    table.integer('ticker_id').unsigned().references('id').inTable('ticker').notNullable();
-                    table.integer('metric_id').unsigned().references('id').inTable('metric').notNullable();
-                    table.dateTime('stamp').notNullable();
-                    table.float('value', 14, 10).notNullable();
-                    table.unique(['ticker_id', 'metric_id', 'stamp']);
+            return [2 /*return*/, knex.schema.alterTable('value', function (table) {
+                    table.index('ticker_id');
+                    table.index('metric_id');
+                    table.index('stamp');
                 })];
         });
     });
@@ -71,12 +51,13 @@ exports.up = up;
 function down(knex) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            return [2 /*return*/, knex.schema
-                    .dropTableIfExists('value')
-                    .dropTableIfExists('metric')
-                    .dropTableIfExists('ticker')];
+            return [2 /*return*/, knex.schema.alterTable('value', function (table) {
+                    table.dropIndex('ticker_id');
+                    table.dropIndex('metric_id');
+                    table.dropIndex('stamp');
+                })];
         });
     });
 }
 exports.down = down;
-//# sourceMappingURL=20200506233741_initial.js.map
+//# sourceMappingURL=20200509175248_indices.js.map
