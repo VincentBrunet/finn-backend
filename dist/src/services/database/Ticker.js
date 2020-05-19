@@ -61,11 +61,11 @@ var Ticker = /** @class */ (function () {
             });
         });
     };
-    Ticker.insert = function (value) {
+    Ticker.update = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Ticker.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Ticker.table, value)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -73,11 +73,11 @@ var Ticker = /** @class */ (function () {
             });
         });
     };
-    Ticker.update = function (value) {
+    Ticker.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Ticker.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Ticker.table, value)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

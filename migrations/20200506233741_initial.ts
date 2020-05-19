@@ -14,10 +14,8 @@ export async function up(knex: Knex): Promise<any> {
     .createTable('metric', (table: Knex.CreateTableBuilder) => {
       table.increments('id').primary().notNullable();
 
-      table.string('key', 1023).notNullable();
       table.string('name', 255).notNullable();
       table.string('category', 255).notNullable();
-      table.string('identifier', 511).notNullable();
       table.string('period', 255).notNullable();
 
       table.unique(['name', 'category', 'period']);
@@ -29,7 +27,7 @@ export async function up(knex: Knex): Promise<any> {
       table.integer('metric_id').unsigned().references('id').inTable('metric').notNullable();
 
       table.dateTime('stamp').notNullable();
-      table.float('value', 14, 10).notNullable();
+      table.specificType('value', 'double precision').notNullable();
 
       table.unique(['ticker_id', 'metric_id', 'stamp']);
     });

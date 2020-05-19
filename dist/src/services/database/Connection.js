@@ -67,29 +67,55 @@ var Connection = /** @class */ (function () {
      */
     Connection.get = function (table, id) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
+            var connection, value;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Connection.connect()];
                     case 1:
                         connection = _a.sent();
-                        handle = connection(table);
-                        return [4 /*yield*/, handle.select('*').where('id', id)];
-                    case 2: return [2 /*return*/, (_a.sent())[0]];
+                        return [4 /*yield*/, connection.select('*').where('id', id).from(table)];
+                    case 2:
+                        value = _a.sent();
+                        if (debug) {
+                            console.log('get', value);
+                        }
+                        return [2 /*return*/, value];
                 }
             });
         });
     };
     Connection.list = function (table) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
+            var connection, values;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, Connection.connect()];
                     case 1:
                         connection = _a.sent();
-                        handle = connection(table);
-                        return [4 /*yield*/, handle.select('*')];
+                        return [4 /*yield*/, connection.select('*').from(table)];
+                    case 2:
+                        values = _a.sent();
+                        if (debug) {
+                            console.log('list', values);
+                        }
+                        return [2 /*return*/, values];
+                }
+            });
+        });
+    };
+    Connection.update = function (table, value) {
+        return __awaiter(this, void 0, void 0, function () {
+            var connection;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (debug) {
+                            console.log('update', value);
+                        }
+                        return [4 /*yield*/, Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        return [4 /*yield*/, connection.update(value).from(table)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -97,40 +123,35 @@ var Connection = /** @class */ (function () {
     };
     Connection.insert = function (table, value) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
+            var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection.connect()];
-                    case 1:
-                        connection = _a.sent();
-                        handle = connection(table);
+                    case 0:
                         if (debug) {
                             console.log('insert', value);
                         }
-                        return [4 /*yield*/, handle.insert(value)];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/];
+                        return [4 /*yield*/, Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        return [4 /*yield*/, connection.insert(value).into(table)];
+                    case 2: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    Connection.update = function (table, value) {
+    Connection.insertBatch = function (table, values) {
         return __awaiter(this, void 0, void 0, function () {
-            var connection, handle;
+            var connection;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection.connect()];
+                    case 0:
+                        if (debug) {
+                            console.log('insert', values);
+                        }
+                        return [4 /*yield*/, Connection.connect()];
                     case 1:
                         connection = _a.sent();
-                        handle = connection(table);
-                        if (debug) {
-                            console.log('update', value);
-                        }
-                        return [4 /*yield*/, handle.update(value).where('id', value.id)];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/];
+                        return [2 /*return*/, connection.batchInsert(table, values, 100)];
                 }
             });
         });

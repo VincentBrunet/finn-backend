@@ -79,9 +79,6 @@ var ScreenerTable = /** @class */ (function () {
                         last = moment_1.default().subtract(1, 'quarter');
                         min = moment_1.default(last).startOf('quarter');
                         max = moment_1.default(last).endOf('quarter');
-                        console.log('last', last);
-                        console.log('min', min);
-                        console.log('max', max);
                         metricByColumn = new Map();
                         valueByTickerIdByColumn = new Map();
                         _g.label = 3;
@@ -129,7 +126,6 @@ var ScreenerTable = /** @class */ (function () {
                         finally { if (e_1) throw e_1.error; }
                         return [7 /*endfinally*/];
                     case 10:
-                        console.log('metricByColumn', metricByColumn);
                         rows = [];
                         try {
                             for (tickers_1 = __values(tickers), tickers_1_1 = tickers_1.next(); !tickers_1_1.done; tickers_1_1 = tickers_1.next()) {

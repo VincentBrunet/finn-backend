@@ -4,10 +4,8 @@ export interface Metric extends MetricShell {
   id: number;
 }
 export interface MetricShell {
-  key: string;
   name: string;
   category: string;
-  identifier: string;
   period: string;
 }
 
@@ -19,11 +17,11 @@ export class Metric {
   static async list() {
     return await Connection.list<Metric>(Metric.table);
   }
-  static async insert(value: MetricShell) {
-    await Connection.insert<MetricShell>(Metric.table, value);
-  }
   static async update(value: Metric) {
     await Connection.update<Metric>(Metric.table, value);
+  }
+  static async insert(value: MetricShell) {
+    await Connection.insert<MetricShell>(Metric.table, value);
   }
   static async insertIgnoreFailure(value: MetricShell) {
     await Connection.insertIgnoreFailure<MetricShell>(Metric.table, value);
@@ -31,6 +29,9 @@ export class Metric {
   /**
    * Utils
    */
+  static key(metric: MetricShell) {
+    return `${metric.name}:${metric.category}:${metric.period}`;
+  }
   static async byId() {
     const list = await Metric.list();
     const mapping = new Map<number, Metric>();
@@ -45,30 +46,23 @@ export class Metric {
     const list = await Metric.list();
     const mapping = new Map<string, Metric>();
     for (const item of list) {
-      mapping.set(item.key, item);
+      mapping.set(Metric.key(item), item);
     }
     return mapping;
   }
   /**
-   * Cache
+   * Cached lookup
    */
   private static cache: Map<string, Metric>;
-  static async cached(
-    key: string,
-    name: string,
-    category: string,
-    identifier: string,
-    period: string
-  ) {
+  static async lookup(name: string, category: string, period: string) {
+    const key = Metric.key({ name, category, period });
     if (!Metric.cache) {
       Metric.cache = await Metric.byKey();
     }
     if (!Metric.cache.has(key)) {
       await Metric.insertIgnoreFailure({
-        key: key,
         name: name,
         category: category,
-        identifier: identifier,
         period: period,
       });
       Metric.cache = await Metric.byKey();

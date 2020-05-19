@@ -44,6 +44,18 @@ var Connection_1 = require("./Connection");
 var Value = /** @class */ (function () {
     function Value() {
     }
+    Value.update = function (value) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Value.table, value)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     Value.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -56,11 +68,11 @@ var Value = /** @class */ (function () {
             });
         });
     };
-    Value.insertIgnoreFailure = function (value) {
+    Value.insertBatch = function (values) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.insertIgnoreFailure(Value.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insertBatch(Value.table, values)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

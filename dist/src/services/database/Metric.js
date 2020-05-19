@@ -61,11 +61,11 @@ var Metric = /** @class */ (function () {
             });
         });
     };
-    Metric.insert = function (value) {
+    Metric.update = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Metric.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Metric.table, value)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -73,11 +73,11 @@ var Metric = /** @class */ (function () {
             });
         });
     };
-    Metric.update = function (value) {
+    Metric.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Metric.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Metric.table, value)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -100,6 +100,9 @@ var Metric = /** @class */ (function () {
     /**
      * Utils
      */
+    Metric.key = function (metric) {
+        return metric.name + ":" + metric.category + ":" + metric.period;
+    };
     Metric.byId = function () {
         return __awaiter(this, void 0, void 0, function () {
             var list, mapping, list_1, list_1_1, item;
@@ -143,7 +146,7 @@ var Metric = /** @class */ (function () {
                         try {
                             for (list_2 = __values(list), list_2_1 = list_2.next(); !list_2_1.done; list_2_1 = list_2.next()) {
                                 item = list_2_1.value;
-                                mapping.set(item.key, item);
+                                mapping.set(Metric.key(item), item);
                             }
                         }
                         catch (e_2_1) { e_2 = { error: e_2_1 }; }
@@ -158,12 +161,13 @@ var Metric = /** @class */ (function () {
             });
         });
     };
-    Metric.cached = function (key, name, category, identifier, period) {
+    Metric.lookup = function (name, category, period) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b;
+            var key, _a, _b;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
+                        key = Metric.key({ name: name, category: category, period: period });
                         if (!!Metric.cache) return [3 /*break*/, 2];
                         _a = Metric;
                         return [4 /*yield*/, Metric.byKey()];
@@ -173,10 +177,8 @@ var Metric = /** @class */ (function () {
                     case 2:
                         if (!!Metric.cache.has(key)) return [3 /*break*/, 5];
                         return [4 /*yield*/, Metric.insertIgnoreFailure({
-                                key: key,
                                 name: name,
                                 category: category,
-                                identifier: identifier,
                                 period: period,
                             })];
                     case 3:

@@ -17,11 +17,11 @@ export class Ticker {
   static async list() {
     return await Connection.list<Ticker>(Ticker.table);
   }
-  static async insert(value: TickerShell) {
-    await Connection.insert<TickerShell>(Ticker.table, value);
-  }
   static async update(value: Ticker) {
     await Connection.update<Ticker>(Ticker.table, value);
+  }
+  static async insert(value: TickerShell) {
+    await Connection.insert<TickerShell>(Ticker.table, value);
   }
   /**
    * Utils

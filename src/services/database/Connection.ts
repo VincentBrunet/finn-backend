@@ -23,29 +23,40 @@ export class Connection {
    */
   static async get<T extends Model>(table: string, id: number) {
     const connection = await Connection.connect();
-    const handle = connection<T>(table);
-    return (await handle.select('*').where('id', id))[0];
+    const value = await connection.select('*').where('id', id).from(table);
+    if (debug) {
+      console.log('get', value);
+    }
+    return value;
   }
   static async list<T extends Model>(table: string) {
     const connection = await Connection.connect();
-    const handle = connection<T>(table);
-    return await handle.select('*');
-  }
-  static async insert<T extends ModelShell>(table: string, value: T) {
-    const connection = await Connection.connect();
-    const handle = connection<T>(table);
+    const values = await connection.select('*').from(table);
     if (debug) {
-      console.log('insert', value);
+      console.log('list', values);
     }
-    await handle.insert(value);
+    return values;
   }
   static async update<T extends Model>(table: string, value: T) {
-    const connection = await Connection.connect();
-    const handle = connection<T>(table);
     if (debug) {
       console.log('update', value);
     }
-    await handle.update(value).where('id', value.id);
+    const connection = await Connection.connect();
+    return await connection.update(value).from(table);
+  }
+  static async insert<T extends ModelShell>(table: string, value: T) {
+    if (debug) {
+      console.log('insert', value);
+    }
+    const connection = await Connection.connect();
+    return await connection.insert(value).into(table);
+  }
+  static async insertBatch<T extends ModelShell>(table: string, values: T[]) {
+    if (debug) {
+      console.log('insert', values);
+    }
+    const connection = await Connection.connect();
+    return connection.batchInsert(table, values, 100);
   }
 
   /**

@@ -23,10 +23,6 @@ export class ScreenerTable implements Route {
     const min = moment(last).startOf('quarter');
     const max = moment(last).endOf('quarter');
 
-    console.log('last', last);
-    console.log('min', min);
-    console.log('max', max);
-
     const metricByColumn = new Map<string, Metric>();
     const valueByTickerIdByColumn = new Map<string, Map<number, Value>>();
     for (const column of columns) {
@@ -40,11 +36,6 @@ export class ScreenerTable implements Route {
       }
       valueByTickerIdByColumn.set(column, valueByTickerId);
     }
-
-    console.log('metricByColumn', metricByColumn);
-    /*
-    console.log('valueByTickerIdByColumn', valueByTickerIdByColumn);
-    */
 
     const rows = [];
     for (const ticker of tickers) {

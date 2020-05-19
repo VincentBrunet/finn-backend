@@ -59,25 +59,25 @@ var DownloadUtils = /** @class */ (function () {
     }
     DownloadUtils.uploadValuesHistories = function (valuesCategory, valuesQuarterlyHistoryFetcher, valuesYearlyHistoryFetcher) {
         return __awaiter(this, void 0, void 0, function () {
-            var tickers, count, i, ticker, values, valuesByStampByMetricId, values_1, values_1_1, value, valuesByStamp, valuesQuarterlyHistory, valuesQuarterlyHistory_1, valuesQuarterlyHistory_1_1, values_2, e_1_1, valuesYearlyHistory, valuesYearlyHistory_1, valuesYearlyHistory_1_1, values_3, e_2_1;
-            var e_3, _a, e_1, _b, e_2, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            var tickers, count, i, ticker, values, valuesByStampByMetricId, values_1, values_1_1, value, valuesByStamp, valuesQuarterlyHistory, valuesYearlyHistory;
+            var e_1, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0: return [4 /*yield*/, Ticker_1.Ticker.list()];
                     case 1:
-                        tickers = _d.sent();
+                        tickers = _b.sent();
                         count = tickers.length;
                         i = 0;
-                        _d.label = 2;
+                        _b.label = 2;
                     case 2:
-                        if (!(i < count)) return [3 /*break*/, 23];
+                        if (!(i < count)) return [3 /*break*/, 9];
                         ticker = tickers[i];
                         return [4 /*yield*/, Value_1.Value.listByTicker(ticker)];
                     case 3:
-                        values = _d.sent();
+                        values = _b.sent();
                         valuesByStampByMetricId = new Map();
                         try {
-                            for (values_1 = (e_3 = void 0, __values(values)), values_1_1 = values_1.next(); !values_1_1.done; values_1_1 = values_1.next()) {
+                            for (values_1 = (e_1 = void 0, __values(values)), values_1_1 = values_1.next(); !values_1_1.done; values_1_1 = values_1.next()) {
                                 value = values_1_1.value;
                                 valuesByStamp = valuesByStampByMetricId.get(value.metric_id);
                                 if (!valuesByStamp) {
@@ -87,72 +87,25 @@ var DownloadUtils = /** @class */ (function () {
                                 valuesByStamp.set(value.stamp.getTime(), value);
                             }
                         }
-                        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                        catch (e_1_1) { e_1 = { error: e_1_1 }; }
                         finally {
                             try {
                                 if (values_1_1 && !values_1_1.done && (_a = values_1.return)) _a.call(values_1);
                             }
-                            finally { if (e_3) throw e_3.error; }
+                            finally { if (e_1) throw e_1.error; }
                         }
                         return [4 /*yield*/, valuesQuarterlyHistoryFetcher(ticker.symbol)];
                     case 4:
-                        valuesQuarterlyHistory = _d.sent();
-                        _d.label = 5;
+                        valuesQuarterlyHistory = _b.sent();
+                        return [4 /*yield*/, DownloadUtils.uploadValuesHistory(valuesQuarterlyHistory, ticker, valuesCategory, 'Quarter', valuesByStampByMetricId)];
                     case 5:
-                        _d.trys.push([5, 10, 11, 12]);
-                        valuesQuarterlyHistory_1 = (e_1 = void 0, __values(valuesQuarterlyHistory)), valuesQuarterlyHistory_1_1 = valuesQuarterlyHistory_1.next();
-                        _d.label = 6;
+                        _b.sent();
+                        return [4 /*yield*/, valuesYearlyHistoryFetcher(ticker.symbol)];
                     case 6:
-                        if (!!valuesQuarterlyHistory_1_1.done) return [3 /*break*/, 9];
-                        values_2 = valuesQuarterlyHistory_1_1.value;
-                        return [4 /*yield*/, DownloadUtils.uploadValues(values_2, ticker, valuesCategory, 'Quarter', valuesByStampByMetricId)];
+                        valuesYearlyHistory = _b.sent();
+                        return [4 /*yield*/, DownloadUtils.uploadValuesHistory(valuesYearlyHistory, ticker, valuesCategory, 'Year', valuesByStampByMetricId)];
                     case 7:
-                        _d.sent();
-                        _d.label = 8;
-                    case 8:
-                        valuesQuarterlyHistory_1_1 = valuesQuarterlyHistory_1.next();
-                        return [3 /*break*/, 6];
-                    case 9: return [3 /*break*/, 12];
-                    case 10:
-                        e_1_1 = _d.sent();
-                        e_1 = { error: e_1_1 };
-                        return [3 /*break*/, 12];
-                    case 11:
-                        try {
-                            if (valuesQuarterlyHistory_1_1 && !valuesQuarterlyHistory_1_1.done && (_b = valuesQuarterlyHistory_1.return)) _b.call(valuesQuarterlyHistory_1);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                        return [7 /*endfinally*/];
-                    case 12: return [4 /*yield*/, valuesYearlyHistoryFetcher(ticker.symbol)];
-                    case 13:
-                        valuesYearlyHistory = _d.sent();
-                        _d.label = 14;
-                    case 14:
-                        _d.trys.push([14, 19, 20, 21]);
-                        valuesYearlyHistory_1 = (e_2 = void 0, __values(valuesYearlyHistory)), valuesYearlyHistory_1_1 = valuesYearlyHistory_1.next();
-                        _d.label = 15;
-                    case 15:
-                        if (!!valuesYearlyHistory_1_1.done) return [3 /*break*/, 18];
-                        values_3 = valuesYearlyHistory_1_1.value;
-                        return [4 /*yield*/, DownloadUtils.uploadValues(values_3, ticker, valuesCategory, 'Year', valuesByStampByMetricId)];
-                    case 16:
-                        _d.sent();
-                        _d.label = 17;
-                    case 17:
-                        valuesYearlyHistory_1_1 = valuesYearlyHistory_1.next();
-                        return [3 /*break*/, 15];
-                    case 18: return [3 /*break*/, 21];
-                    case 19:
-                        e_2_1 = _d.sent();
-                        e_2 = { error: e_2_1 };
-                        return [3 /*break*/, 21];
-                    case 20:
-                        try {
-                            if (valuesYearlyHistory_1_1 && !valuesYearlyHistory_1_1.done && (_c = valuesYearlyHistory_1.return)) _c.call(valuesYearlyHistory_1);
-                        }
-                        finally { if (e_2) throw e_2.error; }
-                        return [7 /*endfinally*/];
-                    case 21:
+                        _b.sent();
                         console.log("[SYNC]", 
                         // Ticker def
                         DownloadUtils.padPostfix("" + ticker.symbol, 7), '-', DownloadUtils.ellipsis(DownloadUtils.padPostfix("" + ticker.name, 45), 45), 
@@ -160,67 +113,135 @@ var DownloadUtils = /** @class */ (function () {
                         DownloadUtils.padPrefix(i + 1, 5, '0'), '/', DownloadUtils.padPrefix(count, 4, '0'), '-', DownloadUtils.padPrefix(valuesQuarterlyHistory.length, 3, '0'), 'x', DownloadUtils.padPrefix(valuesYearlyHistory.length, 3, '0'), 
                         // Sync type
                         DownloadUtils.padPrefix("<" + valuesCategory + ">", 25));
-                        _d.label = 22;
-                    case 22:
+                        _b.label = 8;
+                    case 8:
                         i++;
                         return [3 /*break*/, 2];
-                    case 23: return [2 /*return*/];
+                    case 9: return [2 /*return*/];
                 }
             });
         });
     };
-    /*
-    2019-09-29T22:00:00.000Z
-    2019-09-29T22:00:00.000Z
-    */
-    DownloadUtils.uploadValues = function (object, ticker, category, period, existings) {
+    DownloadUtils.uploadValuesHistory = function (objects, ticker, category, period, existings) {
         var _a;
         return __awaiter(this, void 0, void 0, function () {
-            var stamp, _b, _c, _i, row, value, name_1, key, identifier, metric, existing, e_4;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            var inserts, updates, objects_1, objects_1_1, object, stamp, time, _b, _c, _i, row, item, value, name_1, metric, existing, e_2_1, updates_1, updates_1_1, update, e_3_1, e_4;
+            var e_2, _d, e_3, _e;
+            return __generator(this, function (_f) {
+                switch (_f.label) {
                     case 0:
-                        _d.trys.push([0, 6, , 7]);
+                        _f.trys.push([0, 21, , 22]);
+                        inserts = [];
+                        updates = [];
+                        _f.label = 1;
+                    case 1:
+                        _f.trys.push([1, 8, 9, 10]);
+                        objects_1 = __values(objects), objects_1_1 = objects_1.next();
+                        _f.label = 2;
+                    case 2:
+                        if (!!objects_1_1.done) return [3 /*break*/, 7];
+                        object = objects_1_1.value;
                         stamp = moment_1.default(object['date']).toDate();
+                        time = stamp.getTime();
+                        if (isNaN(time)) {
+                            return [3 /*break*/, 6];
+                        }
                         _b = [];
                         for (_c in object)
                             _b.push(_c);
                         _i = 0;
-                        _d.label = 1;
-                    case 1:
-                        if (!(_i < _b.length)) return [3 /*break*/, 5];
+                        _f.label = 3;
+                    case 3:
+                        if (!(_i < _b.length)) return [3 /*break*/, 6];
                         row = _b[_i];
-                        value = object[row];
-                        if (!(typeof value === 'number')) return [3 /*break*/, 4];
+                        item = object[row];
+                        if (!(typeof item === 'number')) return [3 /*break*/, 5];
+                        value = parseFloat(item.toPrecision(15));
                         name_1 = row[0].toUpperCase() + row.slice(1);
-                        key = name_1.toUpperCase() + ":" + category.toUpperCase() + ":" + period.toUpperCase();
-                        identifier = name_1 + " (" + category + ")";
-                        return [4 /*yield*/, Metric_1.Metric.cached(key, name_1, category, identifier, period)];
-                    case 2:
-                        metric = _d.sent();
+                        return [4 /*yield*/, Metric_1.Metric.lookup(name_1, category, period)];
+                    case 4:
+                        metric = _f.sent();
                         if (!metric) {
-                            return [3 /*break*/, 4];
+                            return [3 /*break*/, 5];
                         }
-                        existing = (_a = existings.get(metric.id)) === null || _a === void 0 ? void 0 : _a.get(stamp.getTime());
-                        if (!(!existing || existing.value !== value)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, Value_1.Value.insertIgnoreFailure({
+                        existing = (_a = existings.get(metric.id)) === null || _a === void 0 ? void 0 : _a.get(time);
+                        if (!existing) {
+                            inserts.push({
                                 ticker_id: ticker.id,
                                 metric_id: metric.id,
                                 stamp: stamp,
                                 value: value,
-                            })];
-                    case 3:
-                        _d.sent();
-                        _d.label = 4;
-                    case 4:
+                            });
+                        }
+                        if (existing && (existing === null || existing === void 0 ? void 0 : existing.value) != value) {
+                            updates.push({
+                                id: existing === null || existing === void 0 ? void 0 : existing.id,
+                                ticker_id: ticker.id,
+                                metric_id: metric.id,
+                                stamp: stamp,
+                                value: value,
+                            });
+                        }
+                        _f.label = 5;
+                    case 5:
                         _i++;
-                        return [3 /*break*/, 1];
-                    case 5: return [3 /*break*/, 7];
+                        return [3 /*break*/, 3];
                     case 6:
-                        e_4 = _d.sent();
-                        console.log('Could not upload', e_4, object);
-                        return [3 /*break*/, 7];
-                    case 7: return [2 /*return*/];
+                        objects_1_1 = objects_1.next();
+                        return [3 /*break*/, 2];
+                    case 7: return [3 /*break*/, 10];
+                    case 8:
+                        e_2_1 = _f.sent();
+                        e_2 = { error: e_2_1 };
+                        return [3 /*break*/, 10];
+                    case 9:
+                        try {
+                            if (objects_1_1 && !objects_1_1.done && (_d = objects_1.return)) _d.call(objects_1);
+                        }
+                        finally { if (e_2) throw e_2.error; }
+                        return [7 /*endfinally*/];
+                    case 10:
+                        if (!(inserts.length > 0)) return [3 /*break*/, 12];
+                        console.log('INSERTING', inserts.length);
+                        return [4 /*yield*/, Value_1.Value.insertBatch(inserts)];
+                    case 11:
+                        _f.sent();
+                        _f.label = 12;
+                    case 12:
+                        if (!(updates.length > 0)) return [3 /*break*/, 20];
+                        console.log('UPDATING', updates.length);
+                        _f.label = 13;
+                    case 13:
+                        _f.trys.push([13, 18, 19, 20]);
+                        updates_1 = __values(updates), updates_1_1 = updates_1.next();
+                        _f.label = 14;
+                    case 14:
+                        if (!!updates_1_1.done) return [3 /*break*/, 17];
+                        update = updates_1_1.value;
+                        return [4 /*yield*/, Value_1.Value.update(update)];
+                    case 15:
+                        _f.sent();
+                        _f.label = 16;
+                    case 16:
+                        updates_1_1 = updates_1.next();
+                        return [3 /*break*/, 14];
+                    case 17: return [3 /*break*/, 20];
+                    case 18:
+                        e_3_1 = _f.sent();
+                        e_3 = { error: e_3_1 };
+                        return [3 /*break*/, 20];
+                    case 19:
+                        try {
+                            if (updates_1_1 && !updates_1_1.done && (_e = updates_1.return)) _e.call(updates_1);
+                        }
+                        finally { if (e_3) throw e_3.error; }
+                        return [7 /*endfinally*/];
+                    case 20: return [3 /*break*/, 22];
+                    case 21:
+                        e_4 = _f.sent();
+                        console.log('Could not upload', e_4);
+                        return [3 /*break*/, 22];
+                    case 22: return [2 /*return*/];
                 }
             });
         });

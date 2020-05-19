@@ -25,25 +25,21 @@ export class DownloadUtils {
         valuesByStamp.set(value.stamp.getTime(), value);
       }
       const valuesQuarterlyHistory = await valuesQuarterlyHistoryFetcher(ticker.symbol);
-      for (const values of valuesQuarterlyHistory) {
-        await DownloadUtils.uploadValues(
-          values,
-          ticker,
-          valuesCategory,
-          'Quarter',
-          valuesByStampByMetricId
-        );
-      }
+      await DownloadUtils.uploadValuesHistory(
+        valuesQuarterlyHistory,
+        ticker,
+        valuesCategory,
+        'Quarter',
+        valuesByStampByMetricId
+      );
       const valuesYearlyHistory = await valuesYearlyHistoryFetcher(ticker.symbol);
-      for (const values of valuesYearlyHistory) {
-        await DownloadUtils.uploadValues(
-          values,
-          ticker,
-          valuesCategory,
-          'Year',
-          valuesByStampByMetricId
-        );
-      }
+      await DownloadUtils.uploadValuesHistory(
+        valuesYearlyHistory,
+        ticker,
+        valuesCategory,
+        'Year',
+        valuesByStampByMetricId
+      );
       console.log(
         `[SYNC]`,
         // Ticker def
@@ -64,43 +60,64 @@ export class DownloadUtils {
     }
   }
 
-  /*
-  2019-09-29T22:00:00.000Z
-  2019-09-29T22:00:00.000Z
-  */
-
-  static async uploadValues(
-    object: any,
+  static async uploadValuesHistory(
+    objects: any[],
     ticker: Ticker,
     category: string,
     period: string,
     existings: Map<number, Map<number, Value>>
   ) {
     try {
-      const stamp = moment(object['date']).toDate();
-      for (const row in object) {
-        const value = object[row];
-        if (typeof value === 'number') {
-          const name = row[0].toUpperCase() + row.slice(1);
-          const key = `${name.toUpperCase()}:${category.toUpperCase()}:${period.toUpperCase()}`;
-          const identifier = `${name} (${category})`;
-          const metric = await Metric.cached(key, name, category, identifier, period);
-          if (!metric) {
-            continue;
-          }
-          const existing = existings.get(metric.id)?.get(stamp.getTime());
-          if (!existing || existing.value !== value) {
-            await Value.insertIgnoreFailure({
-              ticker_id: ticker.id,
-              metric_id: metric.id,
-              stamp: stamp,
-              value: value,
-            });
+      const inserts = [];
+      const updates = [];
+      for (const object of objects) {
+        const stamp = moment(object['date']).toDate();
+        const time = stamp.getTime();
+        if (isNaN(time)) {
+          continue;
+        }
+        for (const row in object) {
+          const item = object[row];
+          if (typeof item === 'number') {
+            const value = parseFloat(item.toPrecision(15));
+            const name = row[0].toUpperCase() + row.slice(1);
+            const metric = await Metric.lookup(name, category, period);
+            if (!metric) {
+              continue;
+            }
+            const existing = existings.get(metric.id)?.get(time);
+            if (!existing) {
+              inserts.push({
+                ticker_id: ticker.id,
+                metric_id: metric.id,
+                stamp: stamp,
+                value: value,
+              });
+            }
+            if (existing && existing?.value != value) {
+              updates.push({
+                id: existing?.id,
+                ticker_id: ticker.id,
+                metric_id: metric.id,
+                stamp: stamp,
+                value: value,
+              });
+            }
           }
         }
       }
+      if (inserts.length > 0) {
+        console.log('INSERTING', inserts.length);
+        await Value.insertBatch(inserts);
+      }
+      if (updates.length > 0) {
+        console.log('UPDATING', updates.length);
+        for (const update of updates) {
+          await Value.update(update);
+        }
+      }
     } catch (e) {
-      console.log('Could not upload', e, object);
+      console.log('Could not upload', e);
     }
   }
 

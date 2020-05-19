@@ -20,11 +20,14 @@ export class Value {
    * Base
    */
   private static table = 'value';
+  static async update(value: Value) {
+    await Connection.update<Value>(Value.table, value);
+  }
   static async insert(value: ValueShell) {
     await Connection.insert<ValueShell>(Value.table, value);
   }
-  static async insertIgnoreFailure(value: ValueShell) {
-    await Connection.insertIgnoreFailure<ValueShell>(Value.table, value);
+  static async insertBatch(values: ValueShell[]) {
+    await Connection.insertBatch<ValueShell>(Value.table, values);
   }
   static async listByMetricAndStamp(
     metric: Metric,

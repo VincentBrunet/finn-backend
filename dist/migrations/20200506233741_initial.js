@@ -49,10 +49,8 @@ function up(knex) {
                 })
                     .createTable('metric', function (table) {
                     table.increments('id').primary().notNullable();
-                    table.string('key', 1023).notNullable();
                     table.string('name', 255).notNullable();
                     table.string('category', 255).notNullable();
-                    table.string('identifier', 511).notNullable();
                     table.string('period', 255).notNullable();
                     table.unique(['name', 'category', 'period']);
                 })
@@ -61,7 +59,7 @@ function up(knex) {
                     table.integer('ticker_id').unsigned().references('id').inTable('ticker').notNullable();
                     table.integer('metric_id').unsigned().references('id').inTable('metric').notNullable();
                     table.dateTime('stamp').notNullable();
-                    table.float('value', 14, 10).notNullable();
+                    table.specificType('value', 'double precision').notNullable();
                     table.unique(['ticker_id', 'metric_id', 'stamp']);
                 })];
         });
