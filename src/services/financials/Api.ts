@@ -52,15 +52,24 @@ export class Api {
 
   private static async get(route: string, params: { [key: string]: string }, code: string) {
     params['apikey'] = '0d83ea8e338b5e50c900244649652689';
-
     const param = Object.keys(params)
       .map((key) => {
         return key + '=' + params[key];
       })
       .join('&');
-
     const url = `https://fmpcloud.io/api/v3/${route}?${param}`;
-    const data = await HttpCache.getNoThrow(url, 'json', code);
+    const hashed = Api.hashed(param);
+    const data = await HttpCache.getNoThrow(url, 'json', `${hashed}-${code}`);
     return JSON.parse(data ?? '[]');
+  }
+
+  private static hashed(str: string) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const chr = str.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0;
+    }
+    return Math.abs(hash).toString(16).slice(0, 4);
   }
 }

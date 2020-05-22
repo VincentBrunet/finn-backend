@@ -36,26 +36,26 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var Api_1 = require("../services/financials/Api");
-var DownloadUtils_1 = require("./DownloadUtils");
-var DownloadIncomeStatements = /** @class */ (function () {
-    function DownloadIncomeStatements() {
-        this.delay = 0;
-        this.repeat = 10000;
+var Api_1 = require("../../services/financials/Api");
+var Table = /** @class */ (function () {
+    function Table() {
     }
-    DownloadIncomeStatements.prototype.run = function () {
+    Table.prototype.run = function (param) {
         return __awaiter(this, void 0, void 0, function () {
+            var columns, stocks;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, DownloadUtils_1.DownloadUtils.uploadValuesHistories('IncomeStatement', Api_1.Api.incomeStatementsQuarterly, Api_1.Api.incomeStatementsYearly)];
+                    case 0:
+                        columns = [{}, {}, {}];
+                        return [4 /*yield*/, Api_1.Api.stocks()];
                     case 1:
-                        _a.sent();
-                        return [2 /*return*/];
+                        stocks = _a.sent();
+                        return [2 /*return*/, stocks.map(function (v) { return v.symbol; })];
                 }
             });
         });
     };
-    return DownloadIncomeStatements;
+    return Table;
 }());
-exports.DownloadIncomeStatements = DownloadIncomeStatements;
-//# sourceMappingURL=DownloadIncomeStatements.js.map
+exports.Table = Table;
+//# sourceMappingURL=Table.js.map

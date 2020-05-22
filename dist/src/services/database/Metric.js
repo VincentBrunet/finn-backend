@@ -35,6 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var Connection_1 = require("./Connection");
 var Metric = /** @class */ (function () {
@@ -50,11 +61,11 @@ var Metric = /** @class */ (function () {
             });
         });
     };
-    Metric.insert = function (value) {
+    Metric.update = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Metric.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Metric.table, value)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -62,11 +73,11 @@ var Metric = /** @class */ (function () {
             });
         });
     };
-    Metric.update = function (value) {
+    Metric.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Metric.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insert(Metric.table, value)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
@@ -86,63 +97,97 @@ var Metric = /** @class */ (function () {
             });
         });
     };
-    Metric.cacheKey = function (name, category, period) {
-        var uppercaseName = name.toUpperCase();
-        var uppercaseCategory = category.toUpperCase();
-        var uppercasePeriod = period.toUpperCase();
-        return uppercaseName + ":" + uppercaseCategory + ":" + uppercasePeriod;
+    /**
+     * Utils
+     */
+    Metric.key = function (metric) {
+        return metric.name + ":" + metric.category + ":" + metric.period;
     };
-    Metric.makeCache = function () {
+    Metric.byId = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _i, _a, metric, key;
+            var list, mapping, list_1, list_1_1, item;
+            var e_1, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
-                    case 0:
-                        Metric.cache = new Map();
-                        _i = 0;
-                        return [4 /*yield*/, Metric.list()];
+                    case 0: return [4 /*yield*/, Metric.list()];
                     case 1:
-                        _a = _b.sent();
-                        _b.label = 2;
-                    case 2:
-                        if (!(_i < _a.length)) return [3 /*break*/, 4];
-                        metric = _a[_i];
-                        key = Metric.cacheKey(metric.name, metric.category, metric.period);
-                        Metric.cache.set(key, metric);
-                        _b.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 2];
-                    case 4: return [2 /*return*/];
+                        list = _b.sent();
+                        mapping = new Map();
+                        try {
+                            for (list_1 = __values(list), list_1_1 = list_1.next(); !list_1_1.done; list_1_1 = list_1.next()) {
+                                item = list_1_1.value;
+                                if (item.id) {
+                                    mapping.set(item.id, item);
+                                }
+                            }
+                        }
+                        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                        finally {
+                            try {
+                                if (list_1_1 && !list_1_1.done && (_a = list_1.return)) _a.call(list_1);
+                            }
+                            finally { if (e_1) throw e_1.error; }
+                        }
+                        return [2 /*return*/, mapping];
                 }
             });
         });
     };
-    Metric.getOrMake = function (name, category, period) {
+    Metric.byKey = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var key;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!!Metric.cache) return [3 /*break*/, 2];
-                        return [4 /*yield*/, Metric.makeCache()];
+            var list, mapping, list_2, list_2_1, item;
+            var e_2, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, Metric.list()];
                     case 1:
-                        _a.sent();
-                        _a.label = 2;
+                        list = _b.sent();
+                        mapping = new Map();
+                        try {
+                            for (list_2 = __values(list), list_2_1 = list_2.next(); !list_2_1.done; list_2_1 = list_2.next()) {
+                                item = list_2_1.value;
+                                mapping.set(Metric.key(item), item);
+                            }
+                        }
+                        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                        finally {
+                            try {
+                                if (list_2_1 && !list_2_1.done && (_a = list_2.return)) _a.call(list_2);
+                            }
+                            finally { if (e_2) throw e_2.error; }
+                        }
+                        return [2 /*return*/, mapping];
+                }
+            });
+        });
+    };
+    Metric.lookup = function (name, category, period) {
+        return __awaiter(this, void 0, void 0, function () {
+            var key, _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        key = Metric.key({ name: name, category: category, period: period });
+                        if (!!Metric.cache) return [3 /*break*/, 2];
+                        _a = Metric;
+                        return [4 /*yield*/, Metric.byKey()];
+                    case 1:
+                        _a.cache = _c.sent();
+                        _c.label = 2;
                     case 2:
-                        key = Metric.cacheKey(name, category, period);
                         if (!!Metric.cache.has(key)) return [3 /*break*/, 5];
                         return [4 /*yield*/, Metric.insertIgnoreFailure({
-                                name: name[0].toUpperCase() + name.slice(1),
+                                name: name,
                                 category: category,
                                 period: period,
                             })];
                     case 3:
-                        _a.sent();
-                        return [4 /*yield*/, Metric.makeCache()];
+                        _c.sent();
+                        _b = Metric;
+                        return [4 /*yield*/, Metric.byKey()];
                     case 4:
-                        _a.sent();
-                        _a.label = 5;
+                        _b.cache = _c.sent();
+                        _c.label = 5;
                     case 5: return [2 /*return*/, Metric.cache.get(key)];
                 }
             });

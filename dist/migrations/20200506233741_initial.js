@@ -59,7 +59,7 @@ function up(knex) {
                     table.integer('ticker_id').unsigned().references('id').inTable('ticker').notNullable();
                     table.integer('metric_id').unsigned().references('id').inTable('metric').notNullable();
                     table.dateTime('stamp').notNullable();
-                    table.float('value', 14, 10).notNullable();
+                    table.specificType('value', 'double precision').notNullable();
                     table.unique(['ticker_id', 'metric_id', 'stamp']);
                 })];
         });

@@ -35,6 +35,17 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var Api_1 = require("../services/financials/Api");
 var Ticker_1 = require("../services/database/Ticker");
@@ -46,33 +57,48 @@ var DownloadTickers = /** @class */ (function () {
     DownloadTickers.prototype.run = function () {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function () {
-            var tickers, stocks, _i, stocks_1, stock;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
+            var tickers, stocks, stocks_1, stocks_1_1, stock, e_1_1;
+            var e_1, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0: return [4 /*yield*/, Ticker_1.Ticker.bySymbol()];
                     case 1:
-                        tickers = _c.sent();
+                        tickers = _d.sent();
                         return [4 /*yield*/, Api_1.Api.stocks()];
                     case 2:
-                        stocks = _c.sent();
-                        _i = 0, stocks_1 = stocks;
-                        _c.label = 3;
+                        stocks = _d.sent();
+                        _d.label = 3;
                     case 3:
-                        if (!(_i < stocks_1.length)) return [3 /*break*/, 6];
-                        stock = stocks_1[_i];
-                        if (!!tickers.has(stock.symbol)) return [3 /*break*/, 5];
+                        _d.trys.push([3, 8, 9, 10]);
+                        stocks_1 = __values(stocks), stocks_1_1 = stocks_1.next();
+                        _d.label = 4;
+                    case 4:
+                        if (!!stocks_1_1.done) return [3 /*break*/, 7];
+                        stock = stocks_1_1.value;
+                        if (!!tickers.has(stock.symbol)) return [3 /*break*/, 6];
                         return [4 /*yield*/, Ticker_1.Ticker.insert({
                                 symbol: stock.symbol,
                                 name: (_a = stock.name) !== null && _a !== void 0 ? _a : stock.symbol,
                                 exchange: (_b = stock.exchange) !== null && _b !== void 0 ? _b : '',
                             })];
-                    case 4:
-                        _c.sent();
-                        _c.label = 5;
                     case 5:
-                        _i++;
-                        return [3 /*break*/, 3];
-                    case 6: return [2 /*return*/];
+                        _d.sent();
+                        _d.label = 6;
+                    case 6:
+                        stocks_1_1 = stocks_1.next();
+                        return [3 /*break*/, 4];
+                    case 7: return [3 /*break*/, 10];
+                    case 8:
+                        e_1_1 = _d.sent();
+                        e_1 = { error: e_1_1 };
+                        return [3 /*break*/, 10];
+                    case 9:
+                        try {
+                            if (stocks_1_1 && !stocks_1_1.done && (_c = stocks_1.return)) _c.call(stocks_1);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                        return [7 /*endfinally*/];
+                    case 10: return [2 /*return*/];
                 }
             });
         });

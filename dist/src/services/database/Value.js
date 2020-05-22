@@ -35,11 +35,27 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var moment_1 = __importDefault(require("moment"));
 var Connection_1 = require("./Connection");
 var Value = /** @class */ (function () {
     function Value() {
     }
+    Value.update = function (value) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection_1.Connection.update(Value.table, value)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     Value.insert = function (value) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
@@ -52,14 +68,51 @@ var Value = /** @class */ (function () {
             });
         });
     };
-    Value.insertIgnoreFailure = function (value) {
+    Value.insertBatch = function (values) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, Connection_1.Connection.insertIgnoreFailure(Value.table, value)];
+                    case 0: return [4 /*yield*/, Connection_1.Connection.insertBatch(Value.table, values)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Value.listByMetricAndStamp = function (metric, stampMin, stampMax) {
+        return __awaiter(this, void 0, void 0, function () {
+            var stampMinMoment, stampMaxMoment, connection, handle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        stampMinMoment = moment_1.default(stampMin);
+                        stampMaxMoment = moment_1.default(stampMax);
+                        return [4 /*yield*/, Connection_1.Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        handle = connection(Value.table);
+                        return [4 /*yield*/, handle
+                                .select('*')
+                                .where('metric_id', metric.id)
+                                .where('stamp', '>', stampMinMoment.toISOString())
+                                .where('stamp', '<', stampMaxMoment.toISOString())];
+                    case 2: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    Value.listByTicker = function (ticker) {
+        return __awaiter(this, void 0, void 0, function () {
+            var connection, handle;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Connection_1.Connection.connect()];
+                    case 1:
+                        connection = _a.sent();
+                        handle = connection(Value.table);
+                        return [4 /*yield*/, handle.select('*').where('ticker_id', ticker.id)];
+                    case 2: return [2 /*return*/, _a.sent()];
                 }
             });
         });

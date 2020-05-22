@@ -2,8 +2,11 @@ import Knex from 'knex';
 
 import knexfile from '../../config/knexfile';
 
+const debug = false;
+
+export interface ModelShell {}
 export interface Model {
-  id?: number;
+  id: number;
 }
 
 export class Connection {
@@ -20,35 +23,46 @@ export class Connection {
    */
   static async get<T extends Model>(table: string, id: number) {
     const connection = await Connection.connect();
-    const handle = connection<T>(table);
-    return (await handle.select('*').where('id', id))[0];
+    const value = await connection.select('*').where('id', id).from(table);
+    if (debug) {
+      console.log('get', value);
+    }
+    return value;
   }
   static async list<T extends Model>(table: string) {
     const connection = await Connection.connect();
-    const handle = connection<T>(table);
-    return await handle.select('*');
-  }
-  static async insert<T extends Model>(table: string, value: T) {
-    if (value.id !== undefined) {
-      throw Error('Cannot insert with an id');
+    const values = await connection.select('*').from(table);
+    if (debug) {
+      console.log('list', values);
     }
-    const connection = await Connection.connect();
-    const handle = connection<T>(table);
-    await handle.insert(value);
+    return values;
   }
   static async update<T extends Model>(table: string, value: T) {
-    if (value.id === undefined) {
-      throw Error('Cannot update without an id');
+    if (debug) {
+      console.log('update', value);
     }
     const connection = await Connection.connect();
-    const handle = connection<T>(table);
-    await handle.update(value).where('id', value.id);
+    return await connection.update(value).from(table);
+  }
+  static async insert<T extends ModelShell>(table: string, value: T) {
+    if (debug) {
+      console.log('insert', value);
+    }
+    const connection = await Connection.connect();
+    return await connection.insert(value).into(table);
+  }
+  static async insertBatch<T extends ModelShell>(table: string, values: T[]) {
+    if (debug) {
+      console.log('insert', values);
+    }
+    const connection = await Connection.connect();
+    return connection.batchInsert(table, values, 100);
   }
 
   /**
    * Base operations wrappers
    */
-  static async insertIgnoreFailure<T extends Model>(table: string, value: T) {
+  static async insertIgnoreFailure<T extends ModelShell>(table: string, value: T) {
     try {
       await Connection.insert(table, value);
     } catch (e) {}

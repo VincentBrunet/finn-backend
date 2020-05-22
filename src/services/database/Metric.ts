@@ -1,7 +1,9 @@
 import { Connection } from './Connection';
 
-export interface Metric {
-  id?: number;
+export interface Metric extends MetricShell {
+  id: number;
+}
+export interface MetricShell {
   name: string;
   category: string;
   period: string;
@@ -15,44 +17,55 @@ export class Metric {
   static async list() {
     return await Connection.list<Metric>(Metric.table);
   }
-  static async insert(value: Metric) {
-    await Connection.insert<Metric>(Metric.table, value);
-  }
   static async update(value: Metric) {
     await Connection.update<Metric>(Metric.table, value);
   }
-  static async insertIgnoreFailure(value: Metric) {
-    await Connection.insertIgnoreFailure<Metric>(Metric.table, value);
+  static async insert(value: MetricShell) {
+    await Connection.insert<MetricShell>(Metric.table, value);
+  }
+  static async insertIgnoreFailure(value: MetricShell) {
+    await Connection.insertIgnoreFailure<MetricShell>(Metric.table, value);
   }
   /**
    * Utils
    */
+  static key(metric: MetricShell) {
+    return `${metric.name}:${metric.category}:${metric.period}`;
+  }
+  static async byId() {
+    const list = await Metric.list();
+    const mapping = new Map<number, Metric>();
+    for (const item of list) {
+      if (item.id) {
+        mapping.set(item.id, item);
+      }
+    }
+    return mapping;
+  }
+  static async byKey() {
+    const list = await Metric.list();
+    const mapping = new Map<string, Metric>();
+    for (const item of list) {
+      mapping.set(Metric.key(item), item);
+    }
+    return mapping;
+  }
+  /**
+   * Cached lookup
+   */
   private static cache: Map<string, Metric>;
-  private static cacheKey(name: string, category: string, period: string) {
-    const uppercaseName = name.toUpperCase();
-    const uppercaseCategory = category.toUpperCase();
-    const uppercasePeriod = period.toUpperCase();
-    return `${uppercaseName}:${uppercaseCategory}:${uppercasePeriod}`;
-  }
-  private static async makeCache() {
-    Metric.cache = new Map<string, Metric>();
-    for (const metric of await Metric.list()) {
-      const key = Metric.cacheKey(metric.name, metric.category, metric.period);
-      Metric.cache.set(key, metric);
-    }
-  }
-  static async getOrMake(name: string, category: string, period: string) {
+  static async lookup(name: string, category: string, period: string) {
+    const key = Metric.key({ name, category, period });
     if (!Metric.cache) {
-      await Metric.makeCache();
+      Metric.cache = await Metric.byKey();
     }
-    const key = Metric.cacheKey(name, category, period);
     if (!Metric.cache.has(key)) {
       await Metric.insertIgnoreFailure({
-        name: name[0].toUpperCase() + name.slice(1),
+        name: name,
         category: category,
         period: period,
       });
-      await Metric.makeCache();
+      Metric.cache = await Metric.byKey();
     }
     return Metric.cache.get(key);
   }

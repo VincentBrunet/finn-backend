@@ -1,7 +1,9 @@
 import express from 'express';
+import cors from 'cors';
 
 import { Route } from './routes/Route';
-import { Test } from './routes/Test';
+
+import { ScreenerTable } from './routes/screener/ScreenerTable';
 
 import { Cron } from './crons/Cron';
 
@@ -17,8 +19,9 @@ export class App {
 
   constructor() {
     this.app = express();
+    this.app.use(cors());
     this.app.use(express.json());
-    this.app.get('/', this.make(new Test()));
+    this.app.get('/screener/table', this.make(new ScreenerTable()));
   }
 
   private make(route: Route) {

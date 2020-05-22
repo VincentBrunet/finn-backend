@@ -37,7 +37,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var Api_1 = require("../services/financials/Api");
-var Ticker_1 = require("../services/database/Ticker");
 var DownloadUtils_1 = require("./DownloadUtils");
 var DownloadFinancialKeyMetrics = /** @class */ (function () {
     function DownloadFinancialKeyMetrics() {
@@ -46,51 +45,12 @@ var DownloadFinancialKeyMetrics = /** @class */ (function () {
     }
     DownloadFinancialKeyMetrics.prototype.run = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var tickers, _i, tickers_1, ticker, valuesQuarterlyHistory, _a, valuesQuarterlyHistory_1, values, valuesYearlyHistory, _b, valuesYearlyHistory_1, values;
-            return __generator(this, function (_c) {
-                switch (_c.label) {
-                    case 0: return [4 /*yield*/, Ticker_1.Ticker.list()];
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, DownloadUtils_1.DownloadUtils.uploadValuesHistories('FinancialKeyMetric', Api_1.Api.financialKeyMetricsQuarterly, Api_1.Api.financialKeyMetricsYearly)];
                     case 1:
-                        tickers = _c.sent();
-                        _i = 0, tickers_1 = tickers;
-                        _c.label = 2;
-                    case 2:
-                        if (!(_i < tickers_1.length)) return [3 /*break*/, 13];
-                        ticker = tickers_1[_i];
-                        return [4 /*yield*/, Api_1.Api.financialKeyMetricsQuarterly(ticker.symbol)];
-                    case 3:
-                        valuesQuarterlyHistory = _c.sent();
-                        _a = 0, valuesQuarterlyHistory_1 = valuesQuarterlyHistory;
-                        _c.label = 4;
-                    case 4:
-                        if (!(_a < valuesQuarterlyHistory_1.length)) return [3 /*break*/, 7];
-                        values = valuesQuarterlyHistory_1[_a];
-                        return [4 /*yield*/, DownloadUtils_1.DownloadUtils.uploadValues(values, ticker, 'FinancialKeyMetric', 'Quarter')];
-                    case 5:
-                        _c.sent();
-                        _c.label = 6;
-                    case 6:
-                        _a++;
-                        return [3 /*break*/, 4];
-                    case 7: return [4 /*yield*/, Api_1.Api.financialKeyMetricsYearly(ticker.symbol)];
-                    case 8:
-                        valuesYearlyHistory = _c.sent();
-                        _b = 0, valuesYearlyHistory_1 = valuesYearlyHistory;
-                        _c.label = 9;
-                    case 9:
-                        if (!(_b < valuesYearlyHistory_1.length)) return [3 /*break*/, 12];
-                        values = valuesYearlyHistory_1[_b];
-                        return [4 /*yield*/, DownloadUtils_1.DownloadUtils.uploadValues(values, ticker, 'FinancialKeyMetric', 'Year')];
-                    case 10:
-                        _c.sent();
-                        _c.label = 11;
-                    case 11:
-                        _b++;
-                        return [3 /*break*/, 9];
-                    case 12:
-                        _i++;
-                        return [3 /*break*/, 2];
-                    case 13: return [2 /*return*/];
+                        _a.sent();
+                        return [2 /*return*/];
                 }
             });
         });
