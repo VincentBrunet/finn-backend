@@ -37,8 +37,8 @@ export class Value {
     const stampMinMoment = moment(stampMin);
     const stampMaxMoment = moment(stampMax);
     const connection = await Connection.connect();
-    const handle = connection<Value>(Value.table);
-    return await handle
+    const query = connection.select('*').from(Value.table);
+    return await query
       .select('*')
       .where('metric_id', metric.id)
       .where('stamp', '>', stampMinMoment.toISOString())
@@ -46,7 +46,7 @@ export class Value {
   }
   static async listByTicker(ticker: Ticker) {
     const connection = await Connection.connect();
-    const handle = connection<Value>(Value.table);
-    return await handle.select('*').where('ticker_id', ticker.id);
+    const query = connection.select('*').from(Value.table);
+    return await query.where('ticker_id', ticker.id);
   }
 }

@@ -14,6 +14,9 @@ export class Metric {
    * Base
    */
   private static table = 'metric';
+  static async get(id: number) {
+    return await Connection.get<Metric>(Metric.table, id);
+  }
   static async list() {
     return await Connection.list<Metric>(Metric.table);
   }
@@ -25,6 +28,11 @@ export class Metric {
   }
   static async insertIgnoreFailure(value: MetricShell) {
     await Connection.insertIgnoreFailure<MetricShell>(Metric.table, value);
+  }
+  static async listByPeriod(period: string) {
+    const connection = await Connection.connect();
+    const query = connection.select('*').from(Metric.table);
+    return await query.where('period', period);
   }
   /**
    * Utils

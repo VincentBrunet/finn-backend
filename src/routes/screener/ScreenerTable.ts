@@ -15,7 +15,7 @@ export class ScreenerTable implements Route {
     const tickers = await Ticker.list();
 
     const metricsList = await Metric.list();
-    const metricsSearcher = new FuzzySearch(metricsList, ['name', 'category', 'identifier'], {
+    const metricsSearcher = new FuzzySearch(metricsList, ['name', 'category'], {
       sort: true,
     });
 
@@ -27,6 +27,9 @@ export class ScreenerTable implements Route {
     const valueByTickerIdByColumn = new Map<string, Map<number, Value>>();
     for (const column of columns) {
       const metrics = metricsSearcher.search(column);
+      if (metrics.length <= 0) {
+        continue;
+      }
       const metric = metrics[0];
       metricByColumn.set(column, metric);
       const values = await Value.listByMetricAndStamp(metric, min, max);

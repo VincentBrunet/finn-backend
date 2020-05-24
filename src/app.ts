@@ -5,6 +5,9 @@ import { Route } from './routes/Route';
 
 import { ScreenerTable } from './routes/screener/ScreenerTable';
 
+import { TickerList } from './routes/ticker/TickerList';
+import { TickerSummary } from './routes/ticker/TickerSummary';
+
 import { Cron } from './crons/Cron';
 
 import { DownloadTickers } from './crons/DownloadTickers';
@@ -21,41 +24,72 @@ export class App {
     this.app = express();
     this.app.use(cors());
     this.app.use(express.json());
-    this.app.get('/screener/table', this.make(new ScreenerTable()));
+    this.get('/screener/table', ScreenerTable);
+    this.get('/ticker/list', TickerList);
+    this.get('/ticker/summary/:symbol', TickerSummary);
+  }
+
+  private get(path: string, handler: new () => Route) {
+    console.log('route:register', path, handler);
+    this.app.get(path, this.make(new handler()));
   }
 
   private make(route: Route) {
     return async (req: express.Request, res: express.Response) => {
       try {
-        const params = req.query || req.params;
+        const params = {};
+        Object.assign(params, req.query);
+        Object.assign(params, req.params);
+        console.log('route:run', req.route.path, params);
         const json = await route.run(params);
         res.status(200);
         res.header('Content-Type', 'application/json');
-        res.send(JSON.stringify(json, undefined, 2));
+        res.send({
+          success: true,
+          error: null,
+          data: json,
+        });
       } catch (e) {
         res.status(500);
-        res.json(e.toString());
+        res.json({
+          success: false,
+          error: {
+            code: e.code,
+            message: e.message,
+            stack: e.stack.split('\n'),
+          },
+          data: null,
+        });
         res.end();
       }
     };
   }
 
   listen(port: number, done: () => void) {
+    console.log('app:listen', port);
     this.app.listen(port, done);
-    this.run(new DownloadTickers());
-    this.run(new DownloadIncomeStatements());
-    this.run(new DownloadCashflowStatements());
-    this.run(new DownloadBalanceSheetStatements());
-    this.run(new DownloadFinancialRatios());
-    this.run(new DownloadFinancialKeyMetrics());
+    this.run(DownloadTickers);
+    this.run(DownloadIncomeStatements);
+    this.run(DownloadCashflowStatements);
+    this.run(DownloadBalanceSheetStatements);
+    this.run(DownloadFinancialRatios);
+    this.run(DownloadFinancialKeyMetrics);
   }
 
-  private run(cron: Cron) {
-    setTimeout(async () => {
-      await cron.run();
+  private run(type: new () => Cron) {
+    console.log('cron:register', type);
+    const cron = new type();
+    const runner = async () => {
+      console.log('cron:run', cron);
+      try {
+        await cron.run();
+      } catch (e) {
+        console.log('cron:error', e);
+      }
       setTimeout(() => {
-        this.run(cron);
+        runner();
       }, cron.repeat);
-    }, cron.delay);
+    };
+    runner();
   }
 }

@@ -14,6 +14,9 @@ export class Ticker {
    * Base
    */
   private static table = 'ticker';
+  static async get(id: number) {
+    return await Connection.get<Ticker>(Ticker.table, id);
+  }
   static async list() {
     return await Connection.list<Ticker>(Ticker.table);
   }

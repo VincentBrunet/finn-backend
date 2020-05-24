@@ -4,6 +4,7 @@ module.exports = {
   client: 'pg',
   connection: {
     user: 'vincent',
+    password: 'vincent',
     database: 'finn',
   },
   pool: {
