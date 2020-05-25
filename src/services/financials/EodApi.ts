@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 import { HttpCache } from '../utils/HttpCache';
+import { Strings } from '../utils/Strings';
 
 export class EodApi {
   static thisMonth() {
@@ -19,18 +20,8 @@ export class EodApi {
       })
       .join('&');
     const url = `https://eodhistoricaldata.com/api/${route}?${param}`;
-    const hashed = EodApi.hashed(param);
+    const hashed = Strings.hashed(param);
     const data = await HttpCache.getNoThrow(url, 'json', `${hashed}-${code}`);
     return JSON.parse(data ?? '{}');
-  }
-
-  private static hashed(str: string) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const chr = str.charCodeAt(i);
-      hash = (hash << 5) - hash + chr;
-      hash |= 0;
-    }
-    return Math.abs(hash).toString(16).slice(0, 4);
   }
 }

@@ -62,18 +62,8 @@ export class FmpApi {
       })
       .join('&');
     const url = `https://fmpcloud.io/api/v3/${route}?${param}`;
-    const hashed = FmpApi.hashed(param);
+    const hashed = Strings.hashed(param);
     const data = await HttpCache.getNoThrow(url, 'json', `${hashed}-${code}`);
     return JSON.parse(data ?? '[]');
-  }
-
-  private static hashed(str: string) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const chr = str.charCodeAt(i);
-      hash = (hash << 5) - hash + chr;
-      hash |= 0;
-    }
-    return Math.abs(hash).toString(16).slice(0, 4);
   }
 }

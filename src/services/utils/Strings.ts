@@ -20,4 +20,13 @@ export class Strings {
     }
     return s;
   }
+  static hashed(value: string) {
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+      const chr = value.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0;
+    }
+    return Math.abs(hash).toString(16).slice(0, 4);
+  }
 }
