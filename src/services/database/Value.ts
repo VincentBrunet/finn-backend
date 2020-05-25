@@ -11,7 +11,8 @@ export interface Value extends ValueShell {
 export interface ValueShell {
   ticker_id: number;
   metric_id: number;
-  stamp: Date;
+  unit_id: number;
+  stamp: number;
   value: number;
 }
 
@@ -29,11 +30,11 @@ export class Value {
   static async insertBatch(values: ValueShell[]) {
     await Connection.insertBatch<ValueShell>(Value.table, values);
   }
-  static async listByMetricAndStamp(
+  static async listForMetricAndStamp(
     metric: Metric,
     stampMin: string | moment.Moment,
     stampMax: string | moment.Moment
-  ) {
+  ): Promise<Value[]> {
     const stampMinMoment = moment(stampMin);
     const stampMaxMoment = moment(stampMax);
     const connection = await Connection.connect();
@@ -41,12 +42,28 @@ export class Value {
     return await query
       .select('*')
       .where('metric_id', metric.id)
-      .where('stamp', '>', stampMinMoment.toISOString())
-      .where('stamp', '<', stampMaxMoment.toISOString());
+      .where('stamp', '>', stampMinMoment.valueOf())
+      .where('stamp', '<', stampMaxMoment.valueOf());
   }
-  static async listByTicker(ticker: Ticker) {
+  static async listForTicker(ticker: Ticker): Promise<Value[]> {
     const connection = await Connection.connect();
     const query = connection.select('*').from(Value.table);
     return await query.where('ticker_id', ticker.id);
+  }
+  /**
+   * Utils
+   */
+  static async mapByStampByMetricIdForTicker(ticker: Ticker) {
+    const values = await Value.listForTicker(ticker);
+    const valuesByStampByMetricId = new Map<number, Map<number, Value>>();
+    for (const value of values) {
+      let valuesByStamp = valuesByStampByMetricId.get(value.metric_id);
+      if (!valuesByStamp) {
+        valuesByStamp = new Map<number, Value>();
+        valuesByStampByMetricId.set(value.metric_id, valuesByStamp);
+      }
+      valuesByStamp.set(value.stamp, value);
+    }
+    return valuesByStampByMetricId;
   }
 }

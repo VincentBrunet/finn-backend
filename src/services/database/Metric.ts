@@ -14,10 +14,7 @@ export class Metric {
    * Base
    */
   private static table = 'metric';
-  static async get(id: number) {
-    return await Connection.get<Metric>(Metric.table, id);
-  }
-  static async list() {
+  static async list(): Promise<Metric[]> {
     return await Connection.list<Metric>(Metric.table);
   }
   static async update(value: Metric) {
@@ -29,7 +26,7 @@ export class Metric {
   static async insertIgnoreFailure(value: MetricShell) {
     await Connection.insertIgnoreFailure<MetricShell>(Metric.table, value);
   }
-  static async listByPeriod(period: string) {
+  static async listForPeriod(period: string) {
     const connection = await Connection.connect();
     const query = connection.select('*').from(Metric.table);
     return await query.where('period', period);
@@ -40,7 +37,7 @@ export class Metric {
   static key(metric: MetricShell) {
     return `${metric.name}:${metric.category}:${metric.period}`;
   }
-  static async byId() {
+  static async mapById() {
     const list = await Metric.list();
     const mapping = new Map<number, Metric>();
     for (const item of list) {
@@ -50,7 +47,7 @@ export class Metric {
     }
     return mapping;
   }
-  static async byKey() {
+  static async mapByKey() {
     const list = await Metric.list();
     const mapping = new Map<string, Metric>();
     for (const item of list) {
@@ -65,7 +62,7 @@ export class Metric {
   static async lookup(name: string, category: string, period: string) {
     const key = Metric.key({ name, category, period });
     if (!Metric.cache) {
-      Metric.cache = await Metric.byKey();
+      Metric.cache = await Metric.mapByKey();
     }
     if (!Metric.cache.has(key)) {
       await Metric.insertIgnoreFailure({
@@ -73,7 +70,7 @@ export class Metric {
         category: category,
         period: period,
       });
-      Metric.cache = await Metric.byKey();
+      Metric.cache = await Metric.mapByKey();
     }
     return Metric.cache.get(key);
   }

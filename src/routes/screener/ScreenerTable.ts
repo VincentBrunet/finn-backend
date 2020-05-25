@@ -7,32 +7,35 @@ import { Route } from '../Route';
 import { Metric } from '../../services/database/Metric';
 import { Ticker } from '../../services/database/Ticker';
 import { Value } from '../../services/database/Value';
+import { Unit } from '../../services/database/Unit';
 
 export class ScreenerTable implements Route {
   async run(param: any) {
-    const columns = ['MarketCap Key', 'DividendYield Key', 'DividendYield Ratio', 'DividendPayout'];
+    const columns = ['Dividend', 'TotalRevenue', 'NetIncome', 'Profit'];
 
     const tickers = await Ticker.list();
 
-    const metricsList = await Metric.list();
-    const metricsSearcher = new FuzzySearch(metricsList, ['name', 'category'], {
+    const unitsById = await Unit.mapById();
+
+    const metrics = await Metric.list();
+    const metricsSearcher = new FuzzySearch(metrics, ['name', 'category'], {
       sort: true,
     });
 
-    const last = moment().subtract(1, 'quarter');
-    const min = moment(last).startOf('quarter');
-    const max = moment(last).endOf('quarter');
+    const last = moment().subtract(1, 'year');
+    const min = moment(last).startOf('year');
+    const max = moment(last).endOf('year');
 
     const metricByColumn = new Map<string, Metric>();
     const valueByTickerIdByColumn = new Map<string, Map<number, Value>>();
     for (const column of columns) {
       const metrics = metricsSearcher.search(column);
-      if (metrics.length <= 0) {
+      if (metrics.length <= 1) {
         continue;
       }
-      const metric = metrics[0];
+      const metric = metrics[1];
       metricByColumn.set(column, metric);
-      const values = await Value.listByMetricAndStamp(metric, min, max);
+      const values = await Value.listForMetricAndStamp(metric, min, max);
       const valueByTickerId = new Map<number, Value>();
       for (const value of values) {
         valueByTickerId.set(value.ticker_id, value);
@@ -46,11 +49,14 @@ export class ScreenerTable implements Route {
       row.push(ticker);
       let keep = false;
       for (const column of columns) {
-        const value = valueByTickerIdByColumn.get(column)?.get(ticker.id)?.value;
+        const value = valueByTickerIdByColumn.get(column)?.get(ticker.id);
         if (value === undefined) {
           row.push(null);
         } else {
-          row.push(value);
+          row.push({
+            value: value.value,
+            unit: unitsById.get(value.unit_id),
+          });
           keep = true;
         }
       }

@@ -1,10 +1,13 @@
 import moment from 'moment';
 
-import { Metric } from '../services/database/Metric';
-import { Ticker } from '../services/database/Ticker';
-import { Value } from '../services/database/Value';
+import { Metric } from '../../services/database/Metric';
+import { Ticker } from '../../services/database/Ticker';
+import { Value } from '../../services/database/Value';
 
-export class DownloadUtils {
+import { Strings } from '../../services/utils/Strings';
+import { Unit } from '../../services/database/Unit';
+
+export class FmpUtils {
   static async uploadValuesHistories(
     valuesCategory: string,
     valuesQuarterlyHistoryFetcher: (ticker: string) => Promise<any[]>,
@@ -14,26 +17,17 @@ export class DownloadUtils {
     const count = tickers.length;
     for (let i = 0; i < count; i++) {
       const ticker = tickers[i];
-      const values = await Value.listByTicker(ticker);
-      const valuesByStampByMetricId = new Map<number, Map<number, Value>>();
-      for (const value of values) {
-        let valuesByStamp = valuesByStampByMetricId.get(value.metric_id);
-        if (!valuesByStamp) {
-          valuesByStamp = new Map<number, Value>();
-          valuesByStampByMetricId.set(value.metric_id, valuesByStamp);
-        }
-        valuesByStamp.set(value.stamp.getTime(), value);
-      }
-      const valuesQuarterlyHistory = await valuesQuarterlyHistoryFetcher(ticker.symbol);
-      await DownloadUtils.uploadValuesHistory(
+      const valuesByStampByMetricId = await Value.mapByStampByMetricIdForTicker(ticker);
+      const valuesQuarterlyHistory = await valuesQuarterlyHistoryFetcher(ticker.code);
+      await FmpUtils.uploadValuesHistory(
         valuesQuarterlyHistory,
         ticker,
         valuesCategory,
         'Quarter',
         valuesByStampByMetricId
       );
-      const valuesYearlyHistory = await valuesYearlyHistoryFetcher(ticker.symbol);
-      await DownloadUtils.uploadValuesHistory(
+      const valuesYearlyHistory = await valuesYearlyHistoryFetcher(ticker.code);
+      await FmpUtils.uploadValuesHistory(
         valuesYearlyHistory,
         ticker,
         valuesCategory,
@@ -43,19 +37,19 @@ export class DownloadUtils {
       console.log(
         `[SYNC]`,
         // Ticker def
-        DownloadUtils.padPostfix(`${ticker.symbol}`, 7),
+        Strings.padPostfix(`${ticker.code}`, 7),
         '-',
-        DownloadUtils.ellipsis(DownloadUtils.padPostfix(`${ticker.name}`, 45), 45),
+        Strings.ellipsis(Strings.padPostfix(`${ticker.name}`, 45), 45),
         // Sync status
-        DownloadUtils.padPrefix(i + 1, 5, '0'),
+        Strings.padPrefix(i + 1, 5, '0'),
         '/',
-        DownloadUtils.padPrefix(count, 4, '0'),
+        Strings.padPrefix(count, 4, '0'),
         '-',
-        DownloadUtils.padPrefix(valuesQuarterlyHistory.length, 3, '0'),
+        Strings.padPrefix(valuesQuarterlyHistory.length, 3, '0'),
         'x',
-        DownloadUtils.padPrefix(valuesYearlyHistory.length, 3, '0'),
+        Strings.padPrefix(valuesYearlyHistory.length, 3, '0'),
         // Sync type
-        DownloadUtils.padPrefix(`<${valuesCategory}>`, 25)
+        Strings.padPrefix(`<${valuesCategory}>`, 25)
       );
     }
   }
@@ -71,9 +65,8 @@ export class DownloadUtils {
       const inserts = [];
       const updates = [];
       for (const object of objects) {
-        const stamp = moment(object['date']).toDate();
-        const time = stamp.getTime();
-        if (isNaN(time)) {
+        const stamp = moment(object['date']).toDate().getTime();
+        if (isNaN(stamp)) {
           continue;
         }
         for (const row in object) {
@@ -85,11 +78,16 @@ export class DownloadUtils {
             if (!metric) {
               continue;
             }
-            const existing = existings.get(metric.id)?.get(time);
+            const unit = await Unit.lookup('N/A');
+            if (!unit) {
+              continue;
+            }
+            const existing = existings.get(metric.id)?.get(stamp);
             if (!existing) {
               inserts.push({
                 ticker_id: ticker.id,
                 metric_id: metric.id,
+                unit_id: unit.id,
                 stamp: stamp,
                 value: value,
               });
@@ -99,6 +97,7 @@ export class DownloadUtils {
                 id: existing?.id,
                 ticker_id: ticker.id,
                 metric_id: metric.id,
+                unit_id: unit.id,
                 stamp: stamp,
                 value: value,
               });
@@ -119,29 +118,5 @@ export class DownloadUtils {
     } catch (e) {
       console.log('Could not upload', e);
     }
-  }
-
-  private static padPostfix(value: string | number, size: number, postfix?: string) {
-    let s = value + '';
-    while (s.length < size) {
-      s = s + (postfix ?? ' ');
-    }
-    return s;
-  }
-
-  private static padPrefix(value: string | number, size: number, prefix?: string) {
-    let s = value + '';
-    while (s.length < size) {
-      s = (prefix ?? ' ') + s;
-    }
-    return s;
-  }
-
-  private static ellipsis(value: string | number, size: number) {
-    let s = value + '';
-    if (s.length > size) {
-      s = s.slice(0, size - 3) + '...';
-    }
-    return s;
   }
 }

@@ -4,9 +4,8 @@ export interface Ticker extends TickerShell {
   id: number;
 }
 export interface TickerShell {
-  symbol: string;
-  name: string;
-  exchange: string;
+  code: string;
+  name?: string;
 }
 
 export class Ticker {
@@ -14,10 +13,7 @@ export class Ticker {
    * Base
    */
   private static table = 'ticker';
-  static async get(id: number) {
-    return await Connection.get<Ticker>(Ticker.table, id);
-  }
-  static async list() {
+  static async list(): Promise<Ticker[]> {
     return await Connection.list<Ticker>(Ticker.table);
   }
   static async update(value: Ticker) {
@@ -29,21 +25,11 @@ export class Ticker {
   /**
    * Utils
    */
-  static async byId() {
-    const list = await Ticker.list();
-    const mapping = new Map<number, Ticker>();
-    for (const item of list) {
-      if (item.id) {
-        mapping.set(item.id, item);
-      }
-    }
-    return mapping;
-  }
-  static async bySymbol() {
+  static async mapByCode() {
     const list = await Ticker.list();
     const mapping = new Map<string, Ticker>();
     for (const item of list) {
-      mapping.set(item.symbol, item);
+      mapping.set(item.code, item);
     }
     return mapping;
   }

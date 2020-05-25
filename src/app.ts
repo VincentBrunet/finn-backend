@@ -10,12 +10,8 @@ import { TickerSummary } from './routes/ticker/TickerSummary';
 
 import { Cron } from './crons/Cron';
 
-import { DownloadTickers } from './crons/DownloadTickers';
-import { DownloadIncomeStatements } from './crons/DownloadIncomeStatements';
-import { DownloadCashflowStatements } from './crons/DownloadCashflowStatements';
-import { DownloadBalanceSheetStatements } from './crons/DownloadBalanceSheetStatements';
-import { DownloadFinancialRatios } from './crons/DownloadFinancialRatios';
-import { DownloadFinancialKeyMetrics } from './crons/DownloadFinancialKeyMetrics';
+import { EodFundamentals } from './crons/eod/EodFundamentals';
+import { FmpTickers } from './crons/fmp/FmpTickers';
 
 export class App {
   private app: express.Application;
@@ -24,9 +20,17 @@ export class App {
     this.app = express();
     this.app.use(cors());
     this.app.use(express.json());
+    this.setup();
+  }
+
+  private setup() {
+    // Routes
     this.get('/screener/table', ScreenerTable);
     this.get('/ticker/list', TickerList);
-    this.get('/ticker/summary/:symbol', TickerSummary);
+    this.get('/ticker/summary/:code', TickerSummary);
+    // Crons
+    this.run(EodFundamentals);
+    this.run(FmpTickers);
   }
 
   private get(path: string, handler: new () => Route) {
@@ -68,12 +72,6 @@ export class App {
   listen(port: number, done: () => void) {
     console.log('app:listen', port);
     this.app.listen(port, done);
-    this.run(DownloadTickers);
-    this.run(DownloadIncomeStatements);
-    this.run(DownloadCashflowStatements);
-    this.run(DownloadBalanceSheetStatements);
-    this.run(DownloadFinancialRatios);
-    this.run(DownloadFinancialKeyMetrics);
   }
 
   private run(type: new () => Cron) {

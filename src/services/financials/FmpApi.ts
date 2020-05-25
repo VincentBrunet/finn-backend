@@ -2,52 +2,56 @@ import moment from 'moment';
 
 import { HttpCache } from '../utils/HttpCache';
 
-export class Api {
+export class FmpApi {
   static today() {
     const now = moment();
     return now.format('YYYY-MM-DD');
   }
 
   static async stocks() {
-    return (await Api.get(`stock/list`, {}, Api.today())) as any[];
+    return (await FmpApi.get(`stock/list`, {}, FmpApi.today())) as any[];
   }
 
   static async balanceSheetStatementsYearly(ticker: string) {
-    return await Api.get(`balance-sheet-statement/${ticker}`, {}, Api.today());
+    return await FmpApi.get(`balance-sheet-statement/${ticker}`, {}, FmpApi.today());
   }
   static async incomeStatementsYearly(ticker: string) {
-    return await Api.get(`income-statement/${ticker}`, {}, Api.today());
+    return await FmpApi.get(`income-statement/${ticker}`, {}, FmpApi.today());
   }
   static async cashflowStatementsYearly(ticker: string) {
-    return await Api.get(`cash-flow-statement/${ticker}`, {}, Api.today());
+    return await FmpApi.get(`cash-flow-statement/${ticker}`, {}, FmpApi.today());
   }
   static async financialRatiosYearly(ticker: string) {
-    return await Api.get(`ratios/${ticker}`, {}, Api.today());
+    return await FmpApi.get(`ratios/${ticker}`, {}, FmpApi.today());
   }
   static async financialKeyMetricsYearly(ticker: string) {
-    return await Api.get(`key-metrics/${ticker}`, {}, Api.today());
+    return await FmpApi.get(`key-metrics/${ticker}`, {}, FmpApi.today());
   }
   static async enterpriseValuesYearly(ticker: string) {
-    return await Api.get(`enterprise-values/${ticker}`, {}, Api.today());
+    return await FmpApi.get(`enterprise-values/${ticker}`, {}, FmpApi.today());
   }
 
   static async balanceSheetStatementsQuarterly(ticker: string) {
-    return await Api.get(`balance-sheet-statement/${ticker}`, { period: 'quarter' }, Api.today());
+    return await FmpApi.get(
+      `balance-sheet-statement/${ticker}`,
+      { period: 'quarter' },
+      FmpApi.today()
+    );
   }
   static async incomeStatementsQuarterly(ticker: string) {
-    return await Api.get(`income-statement/${ticker}`, { period: 'quarter' }, Api.today());
+    return await FmpApi.get(`income-statement/${ticker}`, { period: 'quarter' }, FmpApi.today());
   }
   static async cashflowStatementsQuarterly(ticker: string) {
-    return await Api.get(`cash-flow-statement/${ticker}`, { period: 'quarter' }, Api.today());
+    return await FmpApi.get(`cash-flow-statement/${ticker}`, { period: 'quarter' }, FmpApi.today());
   }
   static async financialRatiosQuarterly(ticker: string) {
-    return await Api.get(`ratios/${ticker}`, { period: 'quarter' }, Api.today());
+    return await FmpApi.get(`ratios/${ticker}`, { period: 'quarter' }, FmpApi.today());
   }
   static async financialKeyMetricsQuarterly(ticker: string) {
-    return await Api.get(`key-metrics/${ticker}`, { period: 'quarter' }, Api.today());
+    return await FmpApi.get(`key-metrics/${ticker}`, { period: 'quarter' }, FmpApi.today());
   }
   static async enterpriseValuesQuarterly(ticker: string) {
-    return await Api.get(`enterprise-values/${ticker}`, { period: 'quarter' }, Api.today());
+    return await FmpApi.get(`enterprise-values/${ticker}`, { period: 'quarter' }, FmpApi.today());
   }
 
   private static async get(route: string, params: { [key: string]: string }, code: string) {
@@ -58,7 +62,7 @@ export class Api {
       })
       .join('&');
     const url = `https://fmpcloud.io/api/v3/${route}?${param}`;
-    const hashed = Api.hashed(param);
+    const hashed = FmpApi.hashed(param);
     const data = await HttpCache.getNoThrow(url, 'json', `${hashed}-${code}`);
     return JSON.parse(data ?? '[]');
   }

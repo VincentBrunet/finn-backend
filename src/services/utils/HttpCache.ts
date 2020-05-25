@@ -46,17 +46,22 @@ export class HttpCache {
       }
       data = buffer.toString();
     } catch (e) {
-      await FileSystem.lock(lock);
-      const response = await axios.get(url, {
-        responseType: 'arraybuffer',
-      });
-      const buffer = response.data;
-      if (debug) {
-        console.log('HTTP-CACHE >> MISS >>', url);
+      try {
+        await FileSystem.lock(lock);
+        const response = await axios.get(url, {
+          responseType: 'arraybuffer',
+        });
+        const buffer = response.data;
+        if (debug) {
+          console.log('HTTP-CACHE >> MISS >>', url);
+        }
+        data = buffer.toString();
+        await FileSystem.write(path, buffer);
+        await FileSystem.unlock(lock);
+      } catch (e) {
+        await FileSystem.unlock(lock);
+        throw e;
       }
-      data = buffer.toString();
-      await FileSystem.write(path, buffer);
-      await FileSystem.unlock(lock);
     }
     return data;
   }
