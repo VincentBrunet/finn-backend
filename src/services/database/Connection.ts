@@ -42,9 +42,7 @@ export class Connection {
       console.log('update', value);
     }
     const connection = await Connection.connect();
-    const shell: any = value;
-    shell.id = undefined;
-    return await connection.update(shell).where('id', value.id).from(table);
+    return await connection.update(value).where('id', value.id).from(table);
   }
   static async insert<T extends ModelShell>(table: string, value: T) {
     if (debug) {

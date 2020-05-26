@@ -11,7 +11,7 @@ import { Unit } from '../../services/database/Unit';
 
 export class ScreenerTable implements Route {
   async run(param: any) {
-    const columns = ['Dividend', 'TotalRevenue', 'NetIncome', 'Profit'];
+    const columns = ['Dividend', 'TotalRevenue', 'Profit'];
 
     const tickers = await Ticker.list();
 

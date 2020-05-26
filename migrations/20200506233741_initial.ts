@@ -6,8 +6,11 @@ export async function up(knex: Knex): Promise<any> {
       table.increments('id').primary().notNullable();
 
       table.string('code', 31).notNullable();
+      table.string('type', 31).notNullable();
 
-      table.string('name', 255);
+      table.string('name', 512);
+      table.string('country', 31);
+      table.string('exchange', 31);
 
       table.unique(['code']);
     })

@@ -36,6 +36,7 @@
     "dev": "npm-run-all --parallel dev-compile dev-run",
     "knex:migrate:make": "knex --knexfile ./src/config/knexfile.ts -x ts migrate:make",
     "knex:migrate:latest": "knex --knexfile ./src/config/knexfile.ts migrate:latest",
-    "knex:migrate:rollback": "knex --knexfile ./src/config/knexfile.ts migrate:rollback"
+    "knex:migrate:rollback": "knex --knexfile ./src/config/knexfile.ts migrate:rollback",
+    "knex:migrate:purge": "npm-run-all knex:migrate:rollback knex:migrate:latest"
   }
 }

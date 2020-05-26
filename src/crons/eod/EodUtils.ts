@@ -52,6 +52,10 @@ export class EodUtils {
         if (isNaN(stamp)) {
           continue;
         }
+        const currency = object['currency_symbol'];
+        if (currency) {
+          unitName = currency;
+        }
         for (const key in object) {
           if (key === 'date') {
             continue;

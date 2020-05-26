@@ -1,6 +1,7 @@
 import moment from 'moment';
 
 import { HttpCache } from '../utils/HttpCache';
+import { Strings } from '../utils/Strings';
 
 export class FmpApi {
   static today() {

@@ -5,7 +5,10 @@ export interface Ticker extends TickerShell {
 }
 export interface TickerShell {
   code: string;
+  type: string;
   name?: string;
+  country?: string;
+  exchange?: string;
 }
 
 export class Ticker {
@@ -25,6 +28,14 @@ export class Ticker {
   /**
    * Utils
    */
+  static async mapBySymbol() {
+    const list = await Ticker.list();
+    const mapping = new Map<string, Ticker>();
+    for (const item of list) {
+      mapping.set(item.code.split('.')[0], item);
+    }
+    return mapping;
+  }
   static async mapByCode() {
     const list = await Ticker.list();
     const mapping = new Map<string, Ticker>();

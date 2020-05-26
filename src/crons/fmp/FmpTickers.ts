@@ -13,7 +13,7 @@ export class FmpTickers implements Cron {
       if (!tickers.has(stock.symbol)) {
         await Ticker.insert({
           code: stock.symbol,
-          name: stock.name,
+          type: 'Common Stock',
         });
       }
     }

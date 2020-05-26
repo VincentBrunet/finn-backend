@@ -26,7 +26,7 @@ export class HttpCache {
     try {
       return await HttpCache.get(url, extension, code);
     } catch (e) {
-      console.log('Http fail', url, e);
+      console.log('Http fail', url, e.message);
       return undefined;
     }
   }

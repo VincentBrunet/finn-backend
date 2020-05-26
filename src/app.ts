@@ -10,8 +10,8 @@ import { TickerSummary } from './routes/ticker/TickerSummary';
 
 import { Cron } from './crons/Cron';
 
-import { EodFundamentals } from './crons/eod/EodFundamentals';
-import { FmpTickers } from './crons/fmp/FmpTickers';
+import { EodTickers } from './crons/eod/EodTickers';
+import { EodFundamentalsStocks } from './crons/eod/EodFundamentalsStocks';
 
 export class App {
   private app: express.Application;
@@ -29,8 +29,8 @@ export class App {
     this.get('/ticker/list', TickerList);
     this.get('/ticker/summary/:code', TickerSummary);
     // Crons
-    this.run(EodFundamentals);
-    this.run(FmpTickers);
+    this.run(EodTickers);
+    this.run(EodFundamentalsStocks);
   }
 
   private get(path: string, handler: new () => Route) {
@@ -78,12 +78,13 @@ export class App {
     console.log('cron:register', type);
     const cron = new type();
     const runner = async () => {
-      console.log('cron:run', cron);
+      console.log('cron:start', cron);
       try {
         await cron.run();
       } catch (e) {
         console.log('cron:error', e);
       }
+      console.log('cron:end', cron);
       setTimeout(() => {
         runner();
       }, cron.repeat);

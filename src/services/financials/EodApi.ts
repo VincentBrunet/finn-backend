@@ -8,6 +8,14 @@ export class EodApi {
     const now = moment();
     return now.format('YYYY-MM');
   }
+
+  static async symbols(exchange: string) {
+    return await EodApi.get(
+      `exchange-symbol-list/${exchange}`,
+      { fmt: 'json' },
+      EodApi.thisMonth()
+    );
+  }
   static async fundamentals(ticker: string) {
     return await EodApi.get(`fundamentals/${ticker}`, {}, EodApi.thisMonth());
   }
