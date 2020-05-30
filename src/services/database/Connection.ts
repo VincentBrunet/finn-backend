@@ -31,7 +31,7 @@ export class Connection {
   }
   static async list<T extends Model>(table: string) {
     const connection = await Connection.connect();
-    const values = await connection.select('*').from(table);
+    const values = await connection.select('*').from(table).orderBy('id');
     if (debug) {
       console.log('list', values);
     }

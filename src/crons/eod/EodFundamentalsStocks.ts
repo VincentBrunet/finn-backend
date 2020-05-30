@@ -20,9 +20,6 @@ export class EodFundamentalsStocks implements Cron {
       if (ticker.type !== 'Common Stock') {
         continue;
       }
-      if (ticker.exchange === 'PINK') {
-        continue;
-      }
 
       const fundamentals = await EodApi.fundamentals(ticker.code);
 
@@ -95,7 +92,7 @@ export class EodFundamentalsStocks implements Cron {
         // Ticker
         Strings.padPostfix(`${ticker.code}`, 10),
         '-',
-        Strings.ellipsis(Strings.padPostfix(`${ticker.name}`, 50), 50),
+        Strings.ellipsis(Strings.padPostfix(`${ticker.name}`, 45), 45),
         // Sync status
         Strings.padPrefix(i + 1, 5, '0'),
         '/',

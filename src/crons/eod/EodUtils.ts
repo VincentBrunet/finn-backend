@@ -5,6 +5,13 @@ import { Ticker } from '../../services/database/Ticker';
 import { Value } from '../../services/database/Value';
 import { Unit } from '../../services/database/Unit';
 
+const blackListKeys = new Set<string>();
+blackListKeys.add('date');
+blackListKeys.add('reportDate');
+blackListKeys.add('filing_date');
+blackListKeys.add('dateFormatted');
+blackListKeys.add('currency_symbol');
+
 export class EodUtils {
   static async uploadValuesHistories(
     ticker: Ticker,
@@ -57,18 +64,10 @@ export class EodUtils {
           unitName = currency;
         }
         for (const key in object) {
-          if (key === 'date') {
+          if (blackListKeys.has(key)) {
             continue;
           }
-          if (key === 'reportDate') {
-            continue;
-          }
-          if (key === 'filing_date') {
-            continue;
-          }
-          if (key === 'currency_symbol') {
-            continue;
-          }
+
           const item = object[key];
           if (item === null) {
             continue;
@@ -112,11 +111,11 @@ export class EodUtils {
         }
       }
       if (inserts.length > 0) {
-        console.log('INSERTING', inserts.length);
+        console.log('[SYNC] DB ++ INSERTING', inserts.length);
         await Value.insertBatch(inserts);
       }
       if (updates.length > 0) {
-        console.log('UPDATING', updates.length);
+        console.log('[SYNC] DB == UPDATING', updates.length);
         for (const update of updates) {
           await Value.update(update);
         }

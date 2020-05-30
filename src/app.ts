@@ -29,12 +29,12 @@ export class App {
     this.get('/ticker/list', TickerList);
     this.get('/ticker/summary/:code', TickerSummary);
     // Crons
-    this.run(EodTickers);
-    this.run(EodFundamentalsStocks);
+    this.run('/eod/tickers', EodTickers);
+    this.run('/eod/fundamentals-stocks', EodFundamentalsStocks);
   }
 
   private get(path: string, handler: new () => Route) {
-    console.log('route:register', path, handler);
+    console.log('route:register', 'GET', path);
     this.app.get(path, this.make(new handler()));
   }
 
@@ -44,7 +44,7 @@ export class App {
         const params = {};
         Object.assign(params, req.query);
         Object.assign(params, req.params);
-        console.log('route:run', req.route.path, params);
+        console.log('route:run', req.method, req.route.path, params);
         const json = await route.run(params);
         res.status(200);
         res.header('Content-Type', 'application/json');
@@ -74,17 +74,17 @@ export class App {
     this.app.listen(port, done);
   }
 
-  private run(type: new () => Cron) {
-    console.log('cron:register', type);
+  private run(name: string, type: new () => Cron) {
+    console.log('cron:register', name);
     const cron = new type();
     const runner = async () => {
-      console.log('cron:start', cron);
+      console.log('cron:start', name);
       try {
         await cron.run();
       } catch (e) {
         console.log('cron:error', e);
       }
-      console.log('cron:end', cron);
+      console.log('cron:end', name);
       setTimeout(() => {
         runner();
       }, cron.repeat);
