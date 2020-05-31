@@ -22,7 +22,7 @@ export class TickerSummary implements Route {
 
     const unitsById = await Unit.mapById();
 
-    const metrics = await Metric.listForPeriod('Quarterly');
+    const metrics = await Metric.listForPeriod('Yearly');
     const values = await Value.mapByStampByMetricIdForTicker(ticker);
 
     const charts = metrics

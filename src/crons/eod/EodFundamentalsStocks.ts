@@ -10,7 +10,7 @@ import { Value } from '../../services/database/Value';
 
 export class EodFundamentalsStocks implements Cron {
   delay = 0;
-  repeat = 10000;
+  repeat = 1000 * 60 * 60;
   async run() {
     const tickers = await Ticker.list();
 
