@@ -4,7 +4,8 @@ import cors from 'cors';
 import { Route } from './routes/Route';
 
 import { ScreenerTable } from './routes/screener/ScreenerTable';
-
+import { MetricList } from './routes/metric/MetricList';
+import { UnitList } from './routes/unit/UnitList';
 import { TickerList } from './routes/ticker/TickerList';
 import { TickerSummary } from './routes/ticker/TickerSummary';
 
@@ -25,9 +26,11 @@ export class App {
 
   private setup() {
     // Routes
-    this.get('/screener/table', ScreenerTable);
+    this.get('/metric/list', MetricList);
+    this.get('/unit/list', UnitList);
     this.get('/ticker/list', TickerList);
     this.get('/ticker/summary/:code', TickerSummary);
+    this.get('/screener/table', ScreenerTable);
     // Crons
     this.run('/eod/tickers', EodTickers);
     this.run('/eod/fundamentals-stocks', EodFundamentalsStocks);

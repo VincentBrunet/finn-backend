@@ -7,7 +7,6 @@ import { Route } from '../Route';
 import { Metric } from '../../services/database/Metric';
 import { Ticker } from '../../services/database/Ticker';
 import { Value } from '../../services/database/Value';
-import { Unit } from '../../services/database/Unit';
 
 export class ScreenerTable implements Route {
   async run(param: any) {
@@ -15,10 +14,8 @@ export class ScreenerTable implements Route {
 
     const tickers = await Ticker.list();
 
-    const unitsById = await Unit.mapById();
-
-    const metrics = await Metric.list();
-    const metricsSearcher = new FuzzySearch(metrics, ['name', 'category'], {
+    const metricList = await Metric.list();
+    const metricsSearcher = new FuzzySearch(metricList, ['name', 'category'], {
       sort: true,
     });
 
@@ -46,17 +43,14 @@ export class ScreenerTable implements Route {
     const rows = [];
     for (const ticker of tickers) {
       const row = [];
-      row.push(ticker);
+      row.push(ticker.id);
       let keep = false;
       for (const column of columns) {
         const value = valueByTickerIdByColumn.get(column)?.get(ticker.id);
         if (value === undefined) {
           row.push(null);
         } else {
-          row.push({
-            value: value.value,
-            unit: unitsById.get(value.unit_id),
-          });
+          row.push([value.value, value.unit_id]);
           keep = true;
         }
       }
@@ -65,15 +59,13 @@ export class ScreenerTable implements Route {
       }
     }
 
-    const columnsWithMetrics = columns.map((column) => {
-      return {
-        value: column,
-        metric: metricByColumn.get(column),
-      };
-    });
+    const metrics = [];
+    for (const column of columns) {
+      metrics.push(metricByColumn.get(column)?.id);
+    }
 
     return {
-      columns: columnsWithMetrics,
+      metrics: metrics,
       rows: rows,
     };
   }

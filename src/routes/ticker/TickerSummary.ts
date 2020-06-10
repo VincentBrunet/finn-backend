@@ -20,20 +20,18 @@ export class TickerSummary implements Route {
       throw new NotFoundError('Ticker not found: ' + param.code);
     }
 
-    const unitsById = await Unit.mapById();
-
     const metrics = await Metric.listForPeriod('Yearly');
     const values = await Value.mapByStampByMetricIdForTicker(ticker);
 
     const charts = metrics
       .map((metric: Metric) => {
         return {
-          metric: metric,
+          metric_id: metric.id,
           values: [...(values.get(metric.id)?.values() ?? [])].map((value) => {
             return {
               stamp: value.stamp,
               value: value.value,
-              unit: unitsById.get(value.unit_id)?.code,
+              unit_id: value.unit_id,
             };
           }),
         };

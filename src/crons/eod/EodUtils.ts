@@ -106,6 +106,24 @@ export class EodUtils {
                 stamp: stamp,
                 value: value,
               });
+              if (
+                ticker.id == existing.ticker_id &&
+                metric.id == existing.metric_id &&
+                stamp == existing.stamp
+              ) {
+                console.log(
+                  'Update VALUE',
+                  ticker.name,
+                  existing.value,
+                  value,
+                  unit.code,
+                  unit.id != existing.unit_id,
+                  new Date(stamp),
+                  metric.name
+                );
+              } else {
+                console.log('WARNING VALUE CONFLICT', existing, updates[updates.length - 1]);
+              }
             }
           }
         }

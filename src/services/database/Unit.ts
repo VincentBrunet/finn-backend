@@ -6,6 +6,7 @@ export interface Unit extends UnitShell {
 export interface UnitShell {
   code: string;
   name?: string;
+  symbol?: string;
 }
 
 export class Unit {
