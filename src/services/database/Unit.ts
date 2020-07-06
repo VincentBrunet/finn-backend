@@ -48,17 +48,24 @@ export class Unit {
   /**
    * Cached lookup
    */
-  private static cache: Map<string, Unit>;
-  static async lookup(code: string) {
-    if (!Unit.cache) {
-      Unit.cache = await Unit.mapByCode();
+  private static cacheById: Map<number, Unit>;
+  static async lookupById(id: number) {
+    if (!Unit.cacheById || !Unit.cacheById.has(id)) {
+      Unit.cacheById = await Unit.mapById();
     }
-    if (!Unit.cache.has(code)) {
+    return Unit.cacheById.get(id);
+  }
+  private static cacheByCode: Map<string, Unit>;
+  static async lookupByCode(code: string) {
+    if (!Unit.cacheByCode) {
+      Unit.cacheByCode = await Unit.mapByCode();
+    }
+    if (!Unit.cacheByCode.has(code)) {
       await Unit.insertIgnoreFailure({
         code: code,
       });
-      Unit.cache = await Unit.mapByCode();
+      Unit.cacheByCode = await Unit.mapByCode();
     }
-    return Unit.cache.get(code);
+    return Unit.cacheByCode.get(code);
   }
 }

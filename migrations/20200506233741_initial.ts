@@ -2,15 +2,38 @@ import * as Knex from 'knex';
 
 export async function up(knex: Knex): Promise<any> {
   return knex.schema
-    .createTable('ticker', (table: Knex.CreateTableBuilder) => {
+    .createTable('unit', (table: Knex.CreateTableBuilder) => {
       table.increments('id').primary().notNullable();
 
       table.string('code', 31).notNullable();
-      table.string('type', 31).notNullable();
 
-      table.string('name', 512);
-      table.string('country', 31);
-      table.string('exchange', 31);
+      table.string('symbol', 31);
+      table.string('name', 255);
+
+      table.unique(['code']);
+    })
+    .createTable('exchange', (table: Knex.CreateTableBuilder) => {
+      table.increments('id').primary().notNullable();
+
+      table.integer('unit_id').unsigned().references('id').inTable('unit').notNullable();
+
+      table.string('code', 31).notNullable();
+
+      table.string('name', 512).notNullable();
+      table.string('country', 31).notNullable();
+
+      table.unique(['code']);
+    })
+    .createTable('ticker', (table: Knex.CreateTableBuilder) => {
+      table.increments('id').primary().notNullable();
+
+      table.integer('exchange_id').unsigned().references('id').inTable('exchange').notNullable();
+      table.integer('unit_id').unsigned().references('id').inTable('unit').notNullable();
+
+      table.string('code', 31).notNullable();
+      table.string('type', 31).notNullable();
+      table.string('name', 512).notNullable();
+      table.string('platform', 31).notNullable();
 
       table.unique(['code']);
     })
@@ -22,16 +45,6 @@ export async function up(knex: Knex): Promise<any> {
       table.string('period', 255).notNullable();
 
       table.unique(['name', 'category', 'period']);
-    })
-    .createTable('unit', (table: Knex.CreateTableBuilder) => {
-      table.increments('id').primary().notNullable();
-
-      table.string('code', 31).notNullable();
-
-      table.string('symbol', 31);
-      table.string('name', 255);
-
-      table.unique(['code']);
     })
     .createTable('value', (table: Knex.CreateTableBuilder) => {
       table.increments('id').primary().notNullable();
@@ -50,7 +63,8 @@ export async function up(knex: Knex): Promise<any> {
 export async function down(knex: Knex): Promise<any> {
   return knex.schema
     .dropTableIfExists('value')
-    .dropTableIfExists('unit')
     .dropTableIfExists('metric')
-    .dropTableIfExists('ticker');
+    .dropTableIfExists('ticker')
+    .dropTableIfExists('exchange')
+    .dropTableIfExists('unit');
 }

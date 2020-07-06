@@ -11,8 +11,10 @@ import { TickerSummary } from './routes/ticker/TickerSummary';
 
 import { Cron } from './crons/Cron';
 
+import { EodExchanges } from './crons/eod/EodExchanges';
 import { EodTickers } from './crons/eod/EodTickers';
-import { EodFundamentalsStocks } from './crons/eod/EodFundamentalsStocks';
+import { EodStocksPrices } from './crons/eod/EodStocksPrices';
+import { EodStocksFundamentals } from './crons/eod/EodStocksFundamentals';
 
 export class App {
   private app: express.Application;
@@ -32,8 +34,10 @@ export class App {
     this.get('/ticker/summary/:code', TickerSummary);
     this.get('/screener/table', ScreenerTable);
     // Crons
+    this.run('/eod/exchanges', EodExchanges);
     this.run('/eod/tickers', EodTickers);
-    this.run('/eod/fundamentals-stocks', EodFundamentalsStocks);
+    this.run('/eod/stocks-prices', EodStocksPrices);
+    this.run('/eod/stocks-fundamentals', EodStocksFundamentals);
   }
 
   private get(path: string, handler: new () => Route) {

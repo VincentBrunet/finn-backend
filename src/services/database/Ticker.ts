@@ -4,11 +4,12 @@ export interface Ticker extends TickerShell {
   id: number;
 }
 export interface TickerShell {
+  exchange_id: number;
+  unit_id: number;
   code: string;
   type: string;
-  name?: string;
-  country?: string;
-  exchange?: string;
+  name: string;
+  platform: string;
 }
 
 export class Ticker {
@@ -28,11 +29,11 @@ export class Ticker {
   /**
    * Utils
    */
-  static async mapBySymbol() {
+  static async mapById() {
     const list = await Ticker.list();
-    const mapping = new Map<string, Ticker>();
+    const mapping = new Map<number, Ticker>();
     for (const item of list) {
-      mapping.set(item.code.split('.')[0], item);
+      mapping.set(item.id, item);
     }
     return mapping;
   }
@@ -41,6 +42,14 @@ export class Ticker {
     const mapping = new Map<string, Ticker>();
     for (const item of list) {
       mapping.set(item.code, item);
+    }
+    return mapping;
+  }
+  static async mapBySymbol() {
+    const list = await Ticker.list();
+    const mapping = new Map<string, Ticker>();
+    for (const item of list) {
+      mapping.set(item.code.split('.')[0], item);
     }
     return mapping;
   }

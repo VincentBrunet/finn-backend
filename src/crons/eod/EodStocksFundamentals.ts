@@ -8,7 +8,7 @@ import { Strings } from '../../services/utils/Strings';
 import { EodUtils } from './EodUtils';
 import { Value } from '../../services/database/Value';
 
-export class EodFundamentalsStocks implements Cron {
+export class EodStocksFundamentals implements Cron {
   delay = 0;
   repeat = 1000 * 60 * 60;
   async run() {
@@ -33,7 +33,7 @@ export class EodFundamentalsStocks implements Cron {
         outstandingShares['quarterly'],
         'OutstandingShares',
         'Quarterly',
-        'million shares',
+        'shares',
         valuesByStampByMetricId
       );
       await EodUtils.uploadValuesHistory(
@@ -41,7 +41,7 @@ export class EodFundamentalsStocks implements Cron {
         outstandingShares['annual'],
         'OutstandingShares',
         'Yearly',
-        'million shares',
+        'shares',
         valuesByStampByMetricId
       );
 

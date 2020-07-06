@@ -9,6 +9,10 @@ export class EodApi {
     return now.format('YYYY-MM');
   }
 
+  static async exchanges() {
+    return await EodApi.get('exchanges-list', {}, EodApi.thisMonth());
+  }
+
   static async symbols(exchange: string) {
     return await EodApi.get(
       `exchange-symbol-list/${exchange}`,
@@ -16,6 +20,18 @@ export class EodApi {
       EodApi.thisMonth()
     );
   }
+
+  static async prices(ticker: string) {
+    return await EodApi.get(
+      `eod/${ticker}`,
+      {
+        fmt: 'json',
+        period: 'm',
+      },
+      EodApi.thisMonth()
+    );
+  }
+
   static async fundamentals(ticker: string) {
     return await EodApi.get(`fundamentals/${ticker}`, {}, EodApi.thisMonth());
   }

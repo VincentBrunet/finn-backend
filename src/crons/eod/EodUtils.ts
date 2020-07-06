@@ -82,7 +82,7 @@ export class EodUtils {
           if (!metric) {
             continue;
           }
-          const unit = await Unit.lookup(unitName);
+          const unit = await Unit.lookupByCode(unitName);
           if (!unit) {
             continue;
           }
@@ -112,14 +112,16 @@ export class EodUtils {
                 stamp == existing.stamp
               ) {
                 console.log(
-                  'Update VALUE',
-                  ticker.name,
+                  'Update',
+                  ticker.code,
+                  new Date(stamp).toDateString(),
+                  metric.name,
+                  ':',
                   existing.value,
+                  (await Unit.lookupById(existing.unit_id))?.code,
+                  '->',
                   value,
-                  unit.code,
-                  unit.id != existing.unit_id,
-                  new Date(stamp),
-                  metric.name
+                  unit.code
                 );
               } else {
                 console.log('WARNING VALUE CONFLICT', existing, updates[updates.length - 1]);
@@ -130,7 +132,11 @@ export class EodUtils {
       }
       if (inserts.length > 0) {
         console.log('[SYNC] DB ++ INSERTING', inserts.length);
-        await Value.insertBatch(inserts);
+        try {
+          await Value.insertBatch(inserts);
+        } catch (e) {
+          console.log('Error', e, inserts);
+        }
       }
       if (updates.length > 0) {
         console.log('[SYNC] DB == UPDATING', updates.length);
