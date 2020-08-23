@@ -75,6 +75,7 @@ whiteListPlatforms.add('SN'); // Chile
 whiteListPlatforms.add('ZSE'); // Croatia
 
 const blackListPlatforms = new Set<string | null>();
+blackListPlatforms.add(null); // is full of weird tickers
 blackListPlatforms.add('LGVW-UN'); // This is clearly a bug from API
 blackListPlatforms.add('PINK'); // is OTC, bad fundamental data
 blackListPlatforms.add('OTCBB'); // is OTC, bad fundamental data
@@ -82,7 +83,7 @@ blackListPlatforms.add('OTCGREY'); // is OTC, bad fundamental data
 blackListPlatforms.add('OTCMKTS'); // is OTC, bad fundamental data
 blackListPlatforms.add('OTCQB'); // is OTC, bad fundamental data
 blackListPlatforms.add('OTCQX'); // is OTC, bad fundamental data
-blackListPlatforms.add(null); // is full of weird tickers
+blackListPlatforms.add('OTCCE'); // is OTC, bad fundamental data
 blackListPlatforms.add('Futures');
 blackListPlatforms.add('FOREX');
 blackListPlatforms.add('INDX'); // Indices
@@ -103,9 +104,7 @@ temporarlyIgnoredPlatforms.add('NYSE ARCA'); // Contains full ETF ?
 temporarlyIgnoredPlatforms.add('NYSE MKT'); // Mostly Prefered shares
 temporarlyIgnoredPlatforms.add('LU'); // Luxembourg seems to have only funds?
 
-export class EodTickers implements Cron {
-  delay = 0;
-  repeat = 1000 * 60 * 60;
+export class EodTickers extends Cron {
   async run() {
     const exchanges = await Exchange.list();
     const tickersByCode = await Ticker.mapByCode();

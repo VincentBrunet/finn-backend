@@ -5,9 +5,7 @@ import { EodApi } from '../../services/financials/EodApi';
 import { Unit } from '../../services/database/Unit';
 import { Exchange, ExchangeShell } from '../../services/database/Exchange';
 
-export class EodExchanges implements Cron {
-  delay = 0;
-  repeat = 1000 * 60 * 60;
+export class EodExchanges extends Cron {
   async run() {
     const exchangesByCode = await Exchange.mapByCode();
 

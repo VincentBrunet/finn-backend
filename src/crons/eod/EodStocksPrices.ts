@@ -8,9 +8,7 @@ import { Ticker } from '../../services/database/Ticker';
 import { Value, ValueShell } from '../../services/database/Value';
 import { Metric } from '../../services/database/Metric';
 
-export class EodStocksPrices implements Cron {
-  delay = 0;
-  repeat = 1000 * 60 * 60;
+export class EodStocksPrices extends Cron {
   async run() {
     const tickers = await Ticker.list();
 

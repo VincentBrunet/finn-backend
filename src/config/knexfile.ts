@@ -3,8 +3,8 @@ require('ts-node/register');
 module.exports = {
   client: 'pg',
   connection: {
-    user: 'vincent',
-    password: 'vincent',
+    user: 'othervincent',
+    password: '',
     database: 'finn',
   },
   pool: {

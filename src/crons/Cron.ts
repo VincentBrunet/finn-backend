@@ -1,5 +1,3 @@
-export interface Cron {
-  delay: number;
-  repeat: number;
-  run(): Promise<void>;
+export class Cron {
+  async run(): Promise<void> {}
 }

@@ -3,18 +3,7 @@ import cors from 'cors';
 
 import { Route } from './routes/Route';
 
-import { ScreenerTable } from './routes/screener/ScreenerTable';
-import { MetricList } from './routes/metric/MetricList';
-import { UnitList } from './routes/unit/UnitList';
-import { TickerList } from './routes/ticker/TickerList';
-import { TickerSummary } from './routes/ticker/TickerSummary';
-
 import { Cron } from './crons/Cron';
-
-import { EodExchanges } from './crons/eod/EodExchanges';
-import { EodTickers } from './crons/eod/EodTickers';
-import { EodStocksPrices } from './crons/eod/EodStocksPrices';
-import { EodStocksFundamentals } from './crons/eod/EodStocksFundamentals';
 
 export class App {
   private app: express.Application;
@@ -26,26 +15,14 @@ export class App {
     this.setup();
   }
 
-  private setup() {
-    // Routes
-    this.get('/metric/list', MetricList);
-    this.get('/unit/list', UnitList);
-    this.get('/ticker/list', TickerList);
-    this.get('/ticker/summary/:code', TickerSummary);
-    this.get('/screener/table', ScreenerTable);
-    // Crons
-    this.run('/eod/exchanges', EodExchanges);
-    this.run('/eod/tickers', EodTickers);
-    this.run('/eod/stocks-prices', EodStocksPrices);
-    this.run('/eod/stocks-fundamentals', EodStocksFundamentals);
-  }
+  protected setup() {}
 
-  private get(path: string, handler: new () => Route) {
+  protected get(path: string, handler: new () => Route) {
     console.log('route:register', 'GET', path);
     this.app.get(path, this.make(new handler()));
   }
 
-  private make(route: Route) {
+  protected make(route: Route) {
     return async (req: express.Request, res: express.Response) => {
       try {
         const params = {};
@@ -81,7 +58,7 @@ export class App {
     this.app.listen(port, done);
   }
 
-  private run(name: string, type: new () => Cron) {
+  protected run(name: string, type: new () => Cron, delay: number, repeat: number) {
     console.log('cron:register', name);
     const cron = new type();
     const runner = async () => {
@@ -94,8 +71,10 @@ export class App {
       console.log('cron:end', name);
       setTimeout(() => {
         runner();
-      }, cron.repeat);
+      }, repeat);
     };
-    runner();
+    setTimeout(() => {
+      runner();
+    }, delay);
   }
 }

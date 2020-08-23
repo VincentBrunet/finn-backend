@@ -8,9 +8,7 @@ import { Strings } from '../../services/utils/Strings';
 import { EodUtils } from './EodUtils';
 import { Value } from '../../services/database/Value';
 
-export class EodStocksFundamentals implements Cron {
-  delay = 0;
-  repeat = 1000 * 60 * 60;
+export class EodStocksFundamentals extends Cron {
   async run() {
     const tickers = await Ticker.list();
 
