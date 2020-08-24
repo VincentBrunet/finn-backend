@@ -7,74 +7,77 @@ import { Ticker } from '../../services/database/Ticker';
 import { Unit } from '../../services/database/Unit';
 
 const whiteListPlatforms = new Set<string | null>();
+const blackListPlatforms = new Set<string | null>();
+const temporarlyIgnoredPlatforms = new Set<string>();
+
 whiteListPlatforms.add('NASDAQ'); // USA
 whiteListPlatforms.add('NYSE'); // NYC
 whiteListPlatforms.add('AMEX'); // NYC
 whiteListPlatforms.add('US'); // USA
 
-whiteListPlatforms.add('V'); // Canada
-whiteListPlatforms.add('ASX'); // Canada
-whiteListPlatforms.add('CSE'); // Canada
-whiteListPlatforms.add('LSE'); // London
-whiteListPlatforms.add('PA'); // Paris
-whiteListPlatforms.add('BE'); // Berlin
-whiteListPlatforms.add('HK'); // Hong Kong
+temporarlyIgnoredPlatforms.add('V'); // Canada
+temporarlyIgnoredPlatforms.add('ASX'); // Canada
+temporarlyIgnoredPlatforms.add('CSE'); // Canada
+temporarlyIgnoredPlatforms.add('LSE'); // London
+temporarlyIgnoredPlatforms.add('PA'); // Paris
+temporarlyIgnoredPlatforms.add('BE'); // Berlin
+temporarlyIgnoredPlatforms.add('HK'); // Hong Kong
 
-whiteListPlatforms.add('MCX'); // Russia (Moscow)
-whiteListPlatforms.add('TW'); // Taiwan
-whiteListPlatforms.add('IS'); // Turkey (Istanbul)
-whiteListPlatforms.add('MX'); // Mexico
-whiteListPlatforms.add('BA'); // Argentina
-whiteListPlatforms.add('SA'); // Brazil
-whiteListPlatforms.add('KLSE'); // Malaysia (Kuala Lumpur)
-whiteListPlatforms.add('VN'); // Vietnam
-whiteListPlatforms.add('JK'); // Indonesia (Jakarta)
-whiteListPlatforms.add('AU'); // Australia
-whiteListPlatforms.add('SHG'); // China (Shanghai)
-whiteListPlatforms.add('SHE'); // China (Shenzhen)
-whiteListPlatforms.add('NSE'); // India
-whiteListPlatforms.add('BSE'); // India
-whiteListPlatforms.add('JSE'); // South Africa
-whiteListPlatforms.add('BK'); // Thailand (Bangkok)
-whiteListPlatforms.add('SR'); // Saudi arabia
-whiteListPlatforms.add('TSE'); // Japan
-whiteListPlatforms.add('AT'); // Greece (Atheenes)
-whiteListPlatforms.add('PSE'); // Philipines
-whiteListPlatforms.add('KAR'); // Pakistan
-whiteListPlatforms.add('SG'); // Singapore
-whiteListPlatforms.add('WAR'); // Poland (Warsaw)
-whiteListPlatforms.add('KQ'); // Korea
-whiteListPlatforms.add('KO'); // Korea
-whiteListPlatforms.add('TA'); // Israel (Tel Aviv)
-whiteListPlatforms.add('NFN'); // Sweden
-whiteListPlatforms.add('CO'); // Denmark (Copenhagen)
-whiteListPlatforms.add('OL'); // Normay
-whiteListPlatforms.add('IC'); // Iceland
-whiteListPlatforms.add('HE'); // Finland (Helsinki?)
-whiteListPlatforms.add('IR'); // Ireland
-whiteListPlatforms.add('LS'); // Portugal
-whiteListPlatforms.add('AS'); // Netherland
-whiteListPlatforms.add('MC'); // Spain
-whiteListPlatforms.add('SW'); // Switzerland
-whiteListPlatforms.add('VX'); // Switzerland
-whiteListPlatforms.add('BR'); // Belgium
-whiteListPlatforms.add('MI'); // Italy
-whiteListPlatforms.add('VI'); // Austria
-whiteListPlatforms.add('F'); // Germany (Frankfurt?)
-whiteListPlatforms.add('STU'); // Germany
-whiteListPlatforms.add('MU'); // Germany
-whiteListPlatforms.add('XETRA'); // Germany
-whiteListPlatforms.add('HA'); // Germany
-whiteListPlatforms.add('HM'); // Germany
-whiteListPlatforms.add('DU'); // Germany (Dusseldorf)
-whiteListPlatforms.add('TO'); // Canada (Toronto)
-whiteListPlatforms.add('ST'); // Sweden
-whiteListPlatforms.add('NB'); // Baltic?
-whiteListPlatforms.add('BUD'); // Hungary
-whiteListPlatforms.add('SN'); // Chile
-whiteListPlatforms.add('ZSE'); // Croatia
+temporarlyIgnoredPlatforms.add('MCX'); // Russia (Moscow)
+temporarlyIgnoredPlatforms.add('TW'); // Taiwan
+temporarlyIgnoredPlatforms.add('IS'); // Turkey (Istanbul)
+temporarlyIgnoredPlatforms.add('MX'); // Mexico
+temporarlyIgnoredPlatforms.add('BA'); // Argentina
+temporarlyIgnoredPlatforms.add('SA'); // Brazil
+temporarlyIgnoredPlatforms.add('KLSE'); // Malaysia (Kuala Lumpur)
+temporarlyIgnoredPlatforms.add('VN'); // Vietnam
+temporarlyIgnoredPlatforms.add('JK'); // Indonesia (Jakarta)
+temporarlyIgnoredPlatforms.add('AU'); // Australia
+temporarlyIgnoredPlatforms.add('SHG'); // China (Shanghai)
+temporarlyIgnoredPlatforms.add('SHE'); // China (Shenzhen)
+temporarlyIgnoredPlatforms.add('NSE'); // India
+temporarlyIgnoredPlatforms.add('BSE'); // India
+temporarlyIgnoredPlatforms.add('JSE'); // South Africa
+temporarlyIgnoredPlatforms.add('BK'); // Thailand (Bangkok)
+temporarlyIgnoredPlatforms.add('SR'); // Saudi arabia
+temporarlyIgnoredPlatforms.add('TSE'); // Japan
+temporarlyIgnoredPlatforms.add('AT'); // Greece (Atheenes)
+temporarlyIgnoredPlatforms.add('PSE'); // Philipines
+temporarlyIgnoredPlatforms.add('KAR'); // Pakistan
+temporarlyIgnoredPlatforms.add('SG'); // Singapore
+temporarlyIgnoredPlatforms.add('WAR'); // Poland (Warsaw)
+temporarlyIgnoredPlatforms.add('KQ'); // Korea
+temporarlyIgnoredPlatforms.add('KO'); // Korea
+temporarlyIgnoredPlatforms.add('TA'); // Israel (Tel Aviv)
+temporarlyIgnoredPlatforms.add('NFN'); // Sweden
+temporarlyIgnoredPlatforms.add('CO'); // Denmark (Copenhagen)
+temporarlyIgnoredPlatforms.add('OL'); // Normay
+temporarlyIgnoredPlatforms.add('IC'); // Iceland
+temporarlyIgnoredPlatforms.add('HE'); // Finland (Helsinki?)
+temporarlyIgnoredPlatforms.add('IR'); // Ireland
+temporarlyIgnoredPlatforms.add('LS'); // Portugal
+temporarlyIgnoredPlatforms.add('AS'); // Netherland
+temporarlyIgnoredPlatforms.add('MC'); // Spain
+temporarlyIgnoredPlatforms.add('SW'); // Switzerland
+temporarlyIgnoredPlatforms.add('VX'); // Switzerland
+temporarlyIgnoredPlatforms.add('BR'); // Belgium
+temporarlyIgnoredPlatforms.add('MI'); // Italy
+temporarlyIgnoredPlatforms.add('VI'); // Austria
+temporarlyIgnoredPlatforms.add('F'); // Germany (Frankfurt?)
+temporarlyIgnoredPlatforms.add('STU'); // Germany
+temporarlyIgnoredPlatforms.add('MU'); // Germany
+temporarlyIgnoredPlatforms.add('XETRA'); // Germany
+temporarlyIgnoredPlatforms.add('HA'); // Germany
+temporarlyIgnoredPlatforms.add('HM'); // Germany
+temporarlyIgnoredPlatforms.add('DU'); // Germany (Dusseldorf)
+temporarlyIgnoredPlatforms.add('TO'); // Canada (Toronto)
+temporarlyIgnoredPlatforms.add('ST'); // Sweden
+temporarlyIgnoredPlatforms.add('NB'); // Baltic?
+temporarlyIgnoredPlatforms.add('BUD'); // Hungary
+temporarlyIgnoredPlatforms.add('SN'); // Chile
+temporarlyIgnoredPlatforms.add('ZSE'); // Croatia
+temporarlyIgnoredPlatforms.add('LIM'); // Peru
 
-const blackListPlatforms = new Set<string | null>();
 blackListPlatforms.add(null); // is full of weird tickers
 blackListPlatforms.add('LGVW-UN'); // This is clearly a bug from API
 blackListPlatforms.add('PINK'); // is OTC, bad fundamental data
@@ -97,7 +100,6 @@ blackListPlatforms.add('MONEY'); // Currencies
 blackListPlatforms.add('GBOND'); // Country bonds
 blackListPlatforms.add('IL'); // Unknown country stocks
 
-const temporarlyIgnoredPlatforms = new Set<string>();
 temporarlyIgnoredPlatforms.add('NMFQS'); // Massive amount of FUNDs
 temporarlyIgnoredPlatforms.add('BATS'); // Contains full ETF ?
 temporarlyIgnoredPlatforms.add('NYSE ARCA'); // Contains full ETF ?
