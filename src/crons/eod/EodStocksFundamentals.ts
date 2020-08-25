@@ -1,16 +1,13 @@
-import { Cron } from '../Cron';
-
+import { Strings } from '../../lib/primitives/Strings';
+import { TickerTable } from '../../services/database/TickerTable';
+import { ValueTable } from '../../services/database/ValueTable';
 import { EodApi } from '../../services/financials/EodApi';
-import { Ticker } from '../../services/database/Ticker';
-
-import { Strings } from '../../services/utils/Strings';
-
+import { Cron } from '../Cron';
 import { EodUtils } from './EodUtils';
-import { Value } from '../../services/database/Value';
 
 export class EodStocksFundamentals extends Cron {
   async run() {
-    const tickers = await Ticker.list();
+    const tickers = await TickerTable.list();
 
     for (let i = 0; i < tickers.length; i++) {
       const ticker = tickers[i];
@@ -23,7 +20,7 @@ export class EodStocksFundamentals extends Cron {
 
       //const general = fundamentals['General'] ?? {};
 
-      const valuesByStampByMetricId = await Value.mapByStampByMetricIdForTicker(ticker);
+      const valuesByStampByMetricId = await ValueTable.mapByStampByMetricIdForTicker(ticker);
 
       const outstandingShares = fundamentals['outstandingShares'] ?? {};
       await EodUtils.uploadValuesHistory(

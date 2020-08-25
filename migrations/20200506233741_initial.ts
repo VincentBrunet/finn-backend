@@ -24,6 +24,14 @@ export async function up(knex: Knex): Promise<any> {
 
       table.unique(['code']);
     })
+    .createTable('company', (table: Knex.CreateTableBuilder) => {
+      table.increments('id').primary().notNullable();
+
+      table.string('unique', 256).notNullable();
+      table.string('image', 1024).notNullable();
+
+      table.unique(['unique']);
+    })
     .createTable('ticker', (table: Knex.CreateTableBuilder) => {
       table.increments('id').primary().notNullable();
 
@@ -65,6 +73,7 @@ export async function down(knex: Knex): Promise<any> {
     .dropTableIfExists('value')
     .dropTableIfExists('metric')
     .dropTableIfExists('ticker')
+    .dropTableIfExists('company')
     .dropTableIfExists('exchange')
     .dropTableIfExists('unit');
 }

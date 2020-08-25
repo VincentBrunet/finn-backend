@@ -1,9 +1,9 @@
 import { Route } from '../Route';
 
-import { Unit } from '../../services/database/Unit';
+import { UnitTable } from '../../services/database/UnitTable';
 
 export class UnitList implements Route {
   async run(param: any) {
-    return await Unit.list();
+    return await UnitTable.list();
   }
 }

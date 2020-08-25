@@ -1,16 +1,14 @@
+import { Metric } from '../../lib/data/Metric';
+import { MetricTable } from '../../services/database/MetricTable';
+import { TickerTable } from '../../services/database/TickerTable';
+import { ValueTable } from '../../services/database/ValueTable';
 import { Route } from '../Route';
-
-import { Ticker } from '../../services/database/Ticker';
-import { Metric } from '../../services/database/Metric';
-import { Value } from '../../services/database/Value';
-//import { Unit } from '../../services/database/Unit';
-
 import { NotFoundError } from '../utils/NotFoundError';
 
 export class TickerSummary implements Route {
   async run(param: any) {
-    const tickerBySymbol = await Ticker.mapBySymbol();
-    const tickerByCode = await Ticker.mapByCode();
+    const tickerBySymbol = await TickerTable.mapBySymbol();
+    const tickerByCode = await TickerTable.mapByCode();
 
     let ticker = tickerByCode.get(param.code);
     if (!ticker) {
@@ -20,8 +18,8 @@ export class TickerSummary implements Route {
       throw new NotFoundError('Ticker not found: ' + param.code);
     }
 
-    const metrics = await Metric.listForPeriod('Yearly');
-    const values = await Value.mapByStampByMetricIdForTicker(ticker);
+    const metrics = await MetricTable.listForPeriod('Yearly');
+    const values = await ValueTable.mapByStampByMetricIdForTicker(ticker);
 
     const charts = metrics
       .map((metric: Metric) => {

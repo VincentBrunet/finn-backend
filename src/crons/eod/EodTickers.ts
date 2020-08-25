@@ -1,10 +1,8 @@
 import { Cron } from '../Cron';
-
 import { EodApi } from '../../services/financials/EodApi';
-
-import { Exchange } from '../../services/database/Exchange';
-import { Ticker } from '../../services/database/Ticker';
-import { Unit } from '../../services/database/Unit';
+import { ExchangeTable } from '../../services/database/ExchangeTable';
+import { TickerTable } from '../../services/database/TickerTable';
+import { UnitTable } from '../../services/database/UnitTable';
 
 const whiteListPlatforms = new Set<string | null>();
 const blackListPlatforms = new Set<string | null>();
@@ -108,8 +106,8 @@ temporarlyIgnoredPlatforms.add('LU'); // Luxembourg seems to have only funds?
 
 export class EodTickers extends Cron {
   async run() {
-    const exchanges = await Exchange.list();
-    const tickersByCode = await Ticker.mapByCode();
+    const exchanges = await ExchangeTable.list();
+    const tickersByCode = await TickerTable.mapByCode();
     for (const exchange of exchanges) {
       const symbols = await EodApi.symbols(exchange.code);
 
@@ -136,7 +134,7 @@ export class EodTickers extends Cron {
           continue;
         }
 
-        const unit = await Unit.lookupByCode(symbol.Currency);
+        const unit = await UnitTable.lookupByCode(symbol.Currency);
         if (!unit) {
           continue;
         }
@@ -153,9 +151,9 @@ export class EodTickers extends Cron {
         const existing = tickersByCode.get(code);
         if (!existing) {
           console.log('New Ticker', code, symbol.Name, symbol.Exchange, symbol.Type);
-          await Ticker.insert(tickerShell);
+          await TickerTable.insert(tickerShell);
         } else {
-          await Ticker.update({ id: existing.id, ...tickerShell });
+          await TickerTable.update({ id: existing.id, ...tickerShell });
         }
       }
     }

@@ -1,23 +1,22 @@
 import moment from 'moment';
 
-import { Cron } from '../Cron';
-
+import { ValueShell } from '../../lib/data/Value';
+import { MetricTable } from '../../services/database/MetricTable';
+import { TickerTable } from '../../services/database/TickerTable';
+import { ValueTable } from '../../services/database/ValueTable';
 import { EodApi } from '../../services/financials/EodApi';
-import { Ticker } from '../../services/database/Ticker';
-
-import { Value, ValueShell } from '../../services/database/Value';
-import { Metric } from '../../services/database/Metric';
+import { Cron } from '../Cron';
 
 export class EodStocksPrices extends Cron {
   async run() {
-    const tickers = await Ticker.list();
+    const tickers = await TickerTable.list();
 
-    const metricPriceQuarterly = await Metric.lookup('Price', 'Trading', 'Quarterly');
+    const metricPriceQuarterly = await MetricTable.lookup('Price', 'Trading', 'Quarterly');
     if (!metricPriceQuarterly) {
       return;
     }
 
-    const metricPriceYearly = await Metric.lookup('Price', 'Trading', 'Yearly');
+    const metricPriceYearly = await MetricTable.lookup('Price', 'Trading', 'Yearly');
     if (!metricPriceYearly) {
       return;
     }
@@ -31,7 +30,7 @@ export class EodStocksPrices extends Cron {
         continue;
       }
 
-      const valuesByStampByMetricId = await Value.mapByStampByMetricIdForTicker(ticker);
+      const valuesByStampByMetricId = await ValueTable.mapByStampByMetricIdForTicker(ticker);
 
       const prices = await EodApi.prices(ticker.code);
 
@@ -97,8 +96,10 @@ export class EodStocksPrices extends Cron {
       toInsert = toInsert.filter((value: ValueShell) => {
         return !valuesByStampByMetricId.get(value.metric_id)?.get(value.stamp);
       });
+
+      console.log(' End');
       try {
-        await Value.insertBatch(toInsert);
+        await ValueTable.insertBatch(toInsert);
       } catch (e) {
         console.log('up', e, toInsert);
       }

@@ -1,9 +1,9 @@
+import { MetricTable } from '../../services/database/MetricTable';
+import { Ticker } from '../../lib/data/Ticker';
+import { UnitTable } from '../../services/database/UnitTable';
+import { Value } from '../../lib/data/Value';
+import { ValueTable } from '../../services/database/ValueTable';
 import moment from 'moment';
-
-import { Metric } from '../../services/database/Metric';
-import { Ticker } from '../../services/database/Ticker';
-import { Value } from '../../services/database/Value';
-import { Unit } from '../../services/database/Unit';
 
 const blackListKeys = new Set<string>();
 blackListKeys.add('date');
@@ -78,11 +78,11 @@ export class EodUtils {
           }
           const value = parseFloat(numberized.toPrecision(15));
           const name = key[0].toUpperCase() + key.slice(1);
-          const metric = await Metric.lookup(name, category, period);
+          const metric = await MetricTable.lookup(name, category, period);
           if (!metric) {
             continue;
           }
-          const unit = await Unit.lookupByCode(unitName);
+          const unit = await UnitTable.lookupByCode(unitName);
           if (!unit) {
             continue;
           }
@@ -118,7 +118,7 @@ export class EodUtils {
                   metric.name,
                   ':',
                   existing.value,
-                  (await Unit.lookupById(existing.unit_id))?.code,
+                  (await UnitTable.lookupById(existing.unit_id))?.code,
                   '->',
                   value,
                   unit.code
@@ -133,7 +133,7 @@ export class EodUtils {
       if (inserts.length > 0) {
         console.log('[SYNC] DB ++ INSERTING', inserts.length);
         try {
-          await Value.insertBatch(inserts);
+          await ValueTable.insertBatch(inserts);
         } catch (e) {
           console.log('Error', e, inserts);
         }
@@ -141,7 +141,7 @@ export class EodUtils {
       if (updates.length > 0) {
         console.log('[SYNC] DB == UPDATING', updates.length);
         for (const update of updates) {
-          await Value.update(update);
+          await ValueTable.update(update);
         }
       }
     } catch (e) {
