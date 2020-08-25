@@ -58,14 +58,16 @@ export class MetricTable {
     if (!MetricTable.cache) {
       MetricTable.cache = await MetricTable.mapByKey();
     }
-    if (!MetricTable.cache.has(key)) {
-      await MetricTable.insertIgnoreFailure({
-        name: name,
-        category: category,
-        period: period,
-      });
-      MetricTable.cache = await MetricTable.mapByKey();
+    const cached = MetricTable.cache.get(key);
+    if (cached) {
+      return cached;
     }
+    await MetricTable.insertIgnoreFailure({
+      name: name,
+      category: category,
+      period: period,
+    });
+    MetricTable.cache = await MetricTable.mapByKey();
     const final = MetricTable.cache.get(key);
     if (!final) {
       throw new ErrorDatabase('Could not create metric:' + key);

@@ -1,12 +1,10 @@
 #!/usr/bin/env node
-import { argv } from 'yargs';
 
-import { HttpCache } from './services/utils/HttpCache';
+import { argv } from 'yargs';
 
 import { AppReader } from './AppReader';
 import { AppWriter } from './AppWriter';
-
-console.log('Argv', argv);
+import { HttpCache } from './services/utils/HttpCache';
 
 const main = async () => {
   // Utils

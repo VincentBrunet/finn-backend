@@ -43,9 +43,11 @@ export class UnitTable {
    */
   private static cacheById: Map<number, Unit>;
   static async lookupById(id: number) {
-    if (!UnitTable.cacheById || !UnitTable.cacheById.has(id)) {
-      UnitTable.cacheById = await UnitTable.mapById();
+    const current = UnitTable.cacheById?.get(id);
+    if (current) {
+      return current;
     }
+    UnitTable.cacheById = await UnitTable.mapById();
     return UnitTable.cacheById.get(id);
   }
   private static cacheByCode: Map<string, Unit>;
@@ -53,12 +55,17 @@ export class UnitTable {
     if (!UnitTable.cacheByCode) {
       UnitTable.cacheByCode = await UnitTable.mapByCode();
     }
-    if (!UnitTable.cacheByCode.has(code)) {
-      await UnitTable.insertIgnoreFailure({
-        code: code,
-      });
-      UnitTable.cacheByCode = await UnitTable.mapByCode();
+    if (!code) {
+      code = '';
     }
+    const cached = UnitTable.cacheByCode.get(code);
+    if (cached) {
+      return cached;
+    }
+    await UnitTable.insertIgnoreFailure({
+      code: code,
+    });
+    UnitTable.cacheByCode = await UnitTable.mapByCode();
     const final = UnitTable.cacheByCode.get(code);
     if (!final) {
       throw new ErrorDatabase('Could not create unit: ' + code);

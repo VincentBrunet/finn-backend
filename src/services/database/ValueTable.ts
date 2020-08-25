@@ -23,6 +23,9 @@ export class ValueTable {
   static async insertBatch(values: ValueShell[]) {
     await Connection.insertBatch<ValueShell>(ValueTable.table, values);
   }
+  /**
+   * Filtered reading
+   */
   static async listForMetricAndStamp(
     metric: Metric,
     stampMin: string | moment.Moment,

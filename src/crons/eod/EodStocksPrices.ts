@@ -45,6 +45,9 @@ export class EodStocksPrices extends Cron {
 
       // Query pricing API data
       const prices = await EodApi.prices(ticker.code);
+      if (!prices) {
+        continue;
+      }
 
       // Group all pricing by period
       const dataByDay = new MapArray<ValueStamp, any>();
@@ -123,14 +126,8 @@ export class EodStocksPrices extends Cron {
       }
 
       // Database mutations
-      if (inserts.length > 0) {
-        console.log('[SYNC] DB ++ INSERTING', inserts.length);
-        await ValueTable.insertBatch(inserts);
-      }
-      if (updates.length > 0) {
-        console.log('[SYNC] DB == UPDATING', updates.length);
-        await ValueTable.updateBatch(updates);
-      }
+      await ValueTable.insertBatch(inserts);
+      await ValueTable.updateBatch(updates);
 
       // Log for progress
       console.log(

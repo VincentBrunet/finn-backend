@@ -56,7 +56,6 @@ export class EodTickers extends Cron {
 
         const existing = tickersByCode.get(code);
         if (!existing) {
-          console.log('New Ticker', code, symbol.Name, symbol.Exchange, symbol.Type);
           await TickerTable.insert(tickerShell);
         } else {
           await TickerTable.update({ id: existing.id, ...tickerShell });

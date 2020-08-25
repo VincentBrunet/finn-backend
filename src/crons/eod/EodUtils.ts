@@ -60,6 +60,7 @@ export class EodUtils {
       const updates: Value[] = [];
       for (const key in data) {
         const object = data[key];
+
         let date = object['date'];
         date = date.replace('Q1', '01-01');
         date = date.replace('Q2', '04-01');
@@ -69,10 +70,12 @@ export class EodUtils {
         if (isNaN(stamp)) {
           continue;
         }
+
         const innerUnit = await UnitTable.lookupByCode(object['currency_symbol']);
-        if (innerUnit.symbol) {
+        if (innerUnit.code) {
           unit = innerUnit;
         }
+
         for (const key in object) {
           if (blackListKeys.has(key)) {
             continue;
@@ -86,62 +89,32 @@ export class EodUtils {
           if (isNaN(numberized)) {
             continue;
           }
+
           const value = parseFloat(numberized.toPrecision(15)) as ValueValue;
           const name = key[0].toUpperCase() + key.slice(1);
           const metric = await MetricTable.lookup(name, category, period);
 
+          const valueShell: ValueShell = {
+            ticker_id: ticker.id,
+            metric_id: metric.id,
+            unit_id: unit.id,
+            stamp: stamp,
+            value: value,
+          };
+
           const existing = chunkTicker.get(metric.id, stamp as ValueStamp);
           if (!existing) {
-            inserts.push({
-              ticker_id: ticker.id,
-              metric_id: metric.id,
-              unit_id: unit.id,
-              stamp: stamp,
-              value: value,
-            });
+            inserts.push(valueShell);
           }
           if (existing) {
-            if (existing.value !== value || existing.unit_id !== unit.id) {
-              updates.push({
-                id: existing.id,
-                ticker_id: ticker.id,
-                metric_id: metric.id,
-                unit_id: unit.id,
-                stamp: stamp,
-                value: value,
-              });
-              if (
-                ticker.id == existing.ticker_id &&
-                metric.id == existing.metric_id &&
-                stamp == existing.stamp
-              ) {
-                console.log(
-                  'Update',
-                  ticker.code,
-                  new Date(stamp).toDateString(),
-                  metric.name,
-                  ':',
-                  existing.value,
-                  (await UnitTable.lookupById(existing.unit_id))?.code,
-                  '->',
-                  value,
-                  unit.code
-                );
-              } else {
-                console.log('WARNING VALUE CONFLICT', existing, updates[updates.length - 1]);
-              }
+            if (existing.value !== valueShell.value || existing.unit_id !== valueShell.unit_id) {
+              updates.push({ id: existing.id, ...valueShell });
             }
           }
         }
       }
-      if (inserts.length > 0) {
-        console.log('[SYNC] DB ++ INSERTING', inserts.length);
-        await ValueTable.insertBatch(inserts);
-      }
-      if (updates.length > 0) {
-        console.log('[SYNC] DB == UPDATING', updates.length);
-        await ValueTable.updateBatch(updates);
-      }
+      await ValueTable.insertBatch(inserts);
+      await ValueTable.updateBatch(updates);
     } catch (e) {
       console.log('Could not upload', e);
     }

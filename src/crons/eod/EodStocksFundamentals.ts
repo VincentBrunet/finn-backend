@@ -11,7 +11,7 @@ import { EodUtils } from './EodUtils';
 export class EodStocksFundamentals extends Cron {
   async run() {
     // Useful values
-    const unitCounter = await UnitTable.lookupByCode('');
+    const unitNone = await UnitTable.lookupByCode('');
     // Loop over all existing tickers
     const tickers = await TickerTable.list();
     for (let i = 0; i < tickers.length; i++) {
@@ -27,6 +27,9 @@ export class EodStocksFundamentals extends Cron {
 
       // Query fundamental API data
       const fundamentals = await EodApi.fundamentals(ticker.code);
+      if (!fundamentals) {
+        continue;
+      }
 
       // Outstanding shares standard dual-object
       const outstandingShares = fundamentals['outstandingShares'] ?? {};
@@ -35,7 +38,7 @@ export class EodStocksFundamentals extends Cron {
         outstandingShares['quarterly'],
         MetricCategory.OutstandingShares,
         MetricPeriod.Quarterly,
-        unitCounter,
+        unitNone,
         chunkTicker
       );
       await EodUtils.uploadValuesHistory(
@@ -43,7 +46,7 @@ export class EodStocksFundamentals extends Cron {
         outstandingShares['annual'],
         MetricCategory.OutstandingShares,
         MetricPeriod.Yearly,
-        unitCounter,
+        unitNone,
         chunkTicker
       );
 
@@ -83,7 +86,7 @@ export class EodStocksFundamentals extends Cron {
         earnings['History'],
         MetricCategory.Earning,
         MetricPeriod.Quarterly,
-        financialCashFlow['currency_symbol'],
+        unitNone,
         chunkTicker
       );
       await EodUtils.uploadValuesHistory(
@@ -91,7 +94,7 @@ export class EodStocksFundamentals extends Cron {
         earnings['Annual'],
         MetricCategory.Earning,
         MetricPeriod.Yearly,
-        financialCashFlow['currency_symbol'],
+        unitNone,
         chunkTicker
       );
 

@@ -1,8 +1,8 @@
+import { URL } from 'url';
+
 import axios from 'axios';
 
 import { FileSystem } from './FileSystem';
-
-import { URL } from 'url';
 
 const debug = false;
 
@@ -17,7 +17,11 @@ export class HttpCache {
         if (debug) {
           console.log('HTTP-CACHE >> CLEANUP >>', file);
         }
-        await FileSystem.delete(`${HttpCache.directory}/${file}`);
+        try {
+          await FileSystem.delete(`${HttpCache.directory}/${file}`);
+        } catch (e) {
+          console.log('Could not delete previous lock file: ' + file);
+        }
       }
     }
   }

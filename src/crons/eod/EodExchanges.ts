@@ -27,7 +27,6 @@ export class EodExchanges extends Cron {
         continue;
       }
       // Insert the newly found exchange
-      console.log('New exchange', exchange, unit.code);
       await ExchangeTable.insert(exchange);
     }
   }
