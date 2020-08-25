@@ -11,6 +11,7 @@ export interface MetricShell {
 }
 
 export enum MetricPeriod {
+  Daily = 'daily',
   Quarterly = 'quarter',
   Yearly = 'year',
 }

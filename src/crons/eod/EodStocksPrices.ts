@@ -15,18 +15,21 @@ export class EodStocksPrices extends Cron {
   async run() {
     const tickers = await TickerTable.list();
 
-    const metricPriceQuarterly = await MetricTable.lookup(
+    const metricPriceDay = await MetricTable.lookup(
+      'Price',
+      MetricCategory.Trading,
+      MetricPeriod.Daily
+    );
+    const metricPriceQuarter = await MetricTable.lookup(
       'Price',
       MetricCategory.Trading,
       MetricPeriod.Quarterly
     );
-    const metricPriceYearly = await MetricTable.lookup(
+    const metricPriceYear = await MetricTable.lookup(
       'Price',
       MetricCategory.Trading,
       MetricPeriod.Yearly
     );
-
-    console.log(' Up price');
 
     // Loop over all tickers
     for (let i = 0; i < tickers.length; i++) {
@@ -44,6 +47,7 @@ export class EodStocksPrices extends Cron {
       const prices = await EodApi.prices(ticker.code);
 
       // Group all pricing by period
+      const dataByDay = new MapArray<ValueStamp, any>();
       const dataByQuarter = new MapArray<ValueStamp, any>();
       const dataByYear = new MapArray<ValueStamp, any>();
       for (const price of prices) {
@@ -51,6 +55,7 @@ export class EodStocksPrices extends Cron {
           continue;
         }
         const date = moment.utc(price.date).valueOf();
+        const day = moment(date).endOf('day').valueOf() as ValueStamp;
         const quarter = moment(date).endOf('quarter').valueOf() as ValueStamp;
         const year = moment(date).endOf('year').valueOf() as ValueStamp;
         const data = {
@@ -59,19 +64,32 @@ export class EodStocksPrices extends Cron {
           share: price.close,
           volume: price.volume,
         };
+        dataByDay.push(day, data);
         dataByQuarter.push(quarter, data);
         dataByYear.push(year, data);
       }
 
       // Choose and format a single value for each period
       let values: ValueShell[] = [];
+      dataByDay.forEach((data: any[], stamp: ValueStamp) => {
+        data.sort((a, b) => {
+          return b.date - a.date;
+        });
+        values.push({
+          ticker_id: ticker.id,
+          metric_id: metricPriceDay.id,
+          unit_id: ticker.unit_id,
+          stamp: stamp,
+          value: data[0].price,
+        });
+      });
       dataByQuarter.forEach((data: any[], stamp: ValueStamp) => {
         data.sort((a, b) => {
           return b.date - a.date;
         });
         values.push({
           ticker_id: ticker.id,
-          metric_id: metricPriceYearly.id,
+          metric_id: metricPriceQuarter.id,
           unit_id: ticker.unit_id,
           stamp: stamp,
           value: data[0].price,
@@ -83,7 +101,7 @@ export class EodStocksPrices extends Cron {
         });
         values.push({
           ticker_id: ticker.id,
-          metric_id: metricPriceQuarterly.id,
+          metric_id: metricPriceYear.id,
           unit_id: ticker.unit_id,
           stamp: stamp,
           value: data[0].price,
