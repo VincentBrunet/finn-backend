@@ -1,11 +1,20 @@
+import { Branded } from '../struct/Branded';
+import { ExchangeId } from './Exchange';
+import { UnitId } from './Unit';
+
+export type TickerId = Branded<number, 'TickerId'>;
 export interface Ticker extends TickerShell {
-  id: number;
+  id: TickerId;
 }
 export interface TickerShell {
-  exchange_id: number;
-  unit_id: number;
+  exchange_id: ExchangeId;
+  unit_id: UnitId;
+  type: TickerType;
   code: string;
-  type: string;
   name: string;
   platform: string;
+}
+
+export enum TickerType {
+  CommonStock = 'common-stock',
 }

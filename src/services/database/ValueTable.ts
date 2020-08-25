@@ -1,5 +1,6 @@
 import moment from 'moment';
 
+import { ValueChunkTicker } from './../../lib/data/Value';
 import { Metric } from '../../lib/data/Metric';
 import { Ticker } from '../../lib/data/Ticker';
 import { Value, ValueShell } from '../../lib/data/Value';
@@ -12,6 +13,9 @@ export class ValueTable {
   private static table = 'value';
   static async update(value: Value) {
     await Connection.update<Value>(ValueTable.table, value);
+  }
+  static async updateBatch(values: Value[]) {
+    await Connection.updateBatch<Value>(ValueTable.table, values);
   }
   static async insert(value: ValueShell) {
     await Connection.insert<ValueShell>(ValueTable.table, value);
@@ -42,17 +46,12 @@ export class ValueTable {
   /**
    * Utils
    */
-  static async mapByStampByMetricIdForTicker(ticker: Ticker) {
+  static async chunkTicker(ticker: Ticker) {
     const values = await ValueTable.listForTicker(ticker);
-    const valuesByStampByMetricId = new Map<number, Map<number, Value>>();
+    const chunkTicker = new ValueChunkTicker();
     for (const value of values) {
-      let valuesByStamp = valuesByStampByMetricId.get(value.metric_id);
-      if (!valuesByStamp) {
-        valuesByStamp = new Map<number, Value>();
-        valuesByStampByMetricId.set(value.metric_id, valuesByStamp);
-      }
-      valuesByStamp.set(value.stamp, value);
+      chunkTicker.set(value.metric_id, value.stamp, value);
     }
-    return valuesByStampByMetricId;
+    return chunkTicker;
   }
 }

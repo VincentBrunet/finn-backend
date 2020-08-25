@@ -3,7 +3,7 @@ import { MetricTable } from '../../services/database/MetricTable';
 import { TickerTable } from '../../services/database/TickerTable';
 import { ValueTable } from '../../services/database/ValueTable';
 import { Route } from '../Route';
-import { NotFoundError } from '../utils/NotFoundError';
+import { ErrorNotFound } from '../utils/ErrorNotFound';
 
 export class TickerSummary implements Route {
   async run(param: any) {
@@ -15,17 +15,17 @@ export class TickerSummary implements Route {
       ticker = tickerBySymbol.get(param.code);
     }
     if (!ticker) {
-      throw new NotFoundError('Ticker not found: ' + param.code);
+      throw new ErrorNotFound('Ticker not found: ' + param.code);
     }
 
     const metrics = await MetricTable.listForPeriod('Yearly');
-    const values = await ValueTable.mapByStampByMetricIdForTicker(ticker);
+    const chunkTicker = await ValueTable.chunkTicker(ticker);
 
     const charts = metrics
       .map((metric: Metric) => {
         return {
           metric_id: metric.id,
-          values: [...(values.get(metric.id)?.values() ?? [])].map((value) => {
+          values: [...(chunkTicker.map(metric.id)?.values() ?? [])].map((value) => {
             return {
               stamp: value.stamp,
               value: value.value,

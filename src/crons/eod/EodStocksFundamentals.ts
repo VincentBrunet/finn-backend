@@ -1,3 +1,6 @@
+import { MetricCategory, MetricPeriod } from './../../lib/data/Metric';
+import { TickerType } from './../../lib/data/Ticker';
+import { UnitTable } from './../../services/database/UnitTable';
 import { Strings } from '../../lib/primitives/Strings';
 import { TickerTable } from '../../services/database/TickerTable';
 import { ValueTable } from '../../services/database/ValueTable';
@@ -7,81 +10,92 @@ import { EodUtils } from './EodUtils';
 
 export class EodStocksFundamentals extends Cron {
   async run() {
+    // Useful values
+    const unitCounter = await UnitTable.lookupByCode('');
+    // Loop over all existing tickers
     const tickers = await TickerTable.list();
-
     for (let i = 0; i < tickers.length; i++) {
       const ticker = tickers[i];
 
-      if (ticker.type !== 'Common Stock') {
+      // Make sure we only deal with the common stocks
+      if (ticker.type !== TickerType.CommonStock) {
         continue;
       }
 
+      // Query existing ticker values
+      const chunkTicker = await ValueTable.chunkTicker(ticker);
+
+      // Query fundamental API data
       const fundamentals = await EodApi.fundamentals(ticker.code);
 
-      //const general = fundamentals['General'] ?? {};
-
-      const valuesByStampByMetricId = await ValueTable.mapByStampByMetricIdForTicker(ticker);
-
+      // Outstanding shares standard dual-object
       const outstandingShares = fundamentals['outstandingShares'] ?? {};
       await EodUtils.uploadValuesHistory(
         ticker,
         outstandingShares['quarterly'],
-        'OutstandingShares',
-        'Quarterly',
-        'shares',
-        valuesByStampByMetricId
+        MetricCategory.OutstandingShares,
+        MetricPeriod.Quarterly,
+        unitCounter,
+        chunkTicker
       );
       await EodUtils.uploadValuesHistory(
         ticker,
         outstandingShares['annual'],
-        'OutstandingShares',
-        'Yearly',
-        'shares',
-        valuesByStampByMetricId
+        MetricCategory.OutstandingShares,
+        MetricPeriod.Yearly,
+        unitCounter,
+        chunkTicker
       );
 
       const financials = fundamentals['Financials'] ?? {};
-      const financialBalanceSheets = financials['Balance_Sheet'] ?? {};
-      const financialCashFlow = financials['Cash_Flow'] ?? {};
-      const financialIncomeStatement = financials['Income_Statement'] ?? {};
 
+      // BalanceSheet standard year-quarter combo
+      const financialBalanceSheets = financials['Balance_Sheet'] ?? {};
       await EodUtils.uploadValuesHistories(
         ticker,
         financialBalanceSheets,
-        'BalanceSheet',
-        valuesByStampByMetricId
+        MetricCategory.BalanceSheet,
+        chunkTicker
       );
+
+      // CashFlow standard year-quarter combo
+      const financialCashFlow = financials['Cash_Flow'] ?? {};
       await EodUtils.uploadValuesHistories(
         ticker,
         financialCashFlow,
-        'CashFlow',
-        valuesByStampByMetricId
+        MetricCategory.CashFlow,
+        chunkTicker
       );
+
+      // IncomeStatement standard year-quarter combo
+      const financialIncomeStatement = financials['Income_Statement'] ?? {};
       await EodUtils.uploadValuesHistories(
         ticker,
         financialIncomeStatement,
-        'IncomeStatement',
-        valuesByStampByMetricId
+        MetricCategory.IncomeStatement,
+        chunkTicker
       );
 
+      // Earning standard dual-object
       const earnings = fundamentals['Earnings'] ?? {};
       await EodUtils.uploadValuesHistory(
         ticker,
         earnings['History'],
-        'Earning',
-        'Quarterly',
+        MetricCategory.Earning,
+        MetricPeriod.Quarterly,
         financialCashFlow['currency_symbol'],
-        valuesByStampByMetricId
+        chunkTicker
       );
       await EodUtils.uploadValuesHistory(
         ticker,
         earnings['Annual'],
-        'Earning',
-        'Yearly',
+        MetricCategory.Earning,
+        MetricPeriod.Yearly,
         financialCashFlow['currency_symbol'],
-        valuesByStampByMetricId
+        chunkTicker
       );
 
+      // Log for progress
       console.log(
         `[SYNC]`,
         // Ticker

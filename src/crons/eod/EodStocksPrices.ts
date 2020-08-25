@@ -1,6 +1,10 @@
 import moment from 'moment';
 
-import { ValueShell } from '../../lib/data/Value';
+import { Value, ValueShell, ValueStamp } from './../../lib/data/Value';
+import { MetricCategory, MetricPeriod } from '../../lib/data/Metric';
+import { TickerType } from '../../lib/data/Ticker';
+import { Strings } from '../../lib/primitives/Strings';
+import { MapArray } from '../../lib/struct/MapArray';
 import { MetricTable } from '../../services/database/MetricTable';
 import { TickerTable } from '../../services/database/TickerTable';
 import { ValueTable } from '../../services/database/ValueTable';
@@ -11,100 +15,122 @@ export class EodStocksPrices extends Cron {
   async run() {
     const tickers = await TickerTable.list();
 
-    const metricPriceQuarterly = await MetricTable.lookup('Price', 'Trading', 'Quarterly');
-    if (!metricPriceQuarterly) {
-      return;
-    }
-
-    const metricPriceYearly = await MetricTable.lookup('Price', 'Trading', 'Yearly');
-    if (!metricPriceYearly) {
-      return;
-    }
+    const metricPriceQuarterly = await MetricTable.lookup(
+      'Price',
+      MetricCategory.Trading,
+      MetricPeriod.Quarterly
+    );
+    const metricPriceYearly = await MetricTable.lookup(
+      'Price',
+      MetricCategory.Trading,
+      MetricPeriod.Yearly
+    );
 
     console.log(' Up price');
 
+    // Loop over all tickers
     for (let i = 0; i < tickers.length; i++) {
       const ticker = tickers[i];
 
-      if (ticker.type !== 'Common Stock') {
+      // Make sure we only deal with common stocks
+      if (ticker.type !== TickerType.CommonStock) {
         continue;
       }
 
-      const valuesByStampByMetricId = await ValueTable.mapByStampByMetricIdForTicker(ticker);
+      // Get existing values for ticker
+      const chunkTicker = await ValueTable.chunkTicker(ticker);
 
+      // Query pricing API data
       const prices = await EodApi.prices(ticker.code);
 
-      const valuesByQuarterlyTimestamp = new Map<number, any[]>();
-      const valuesByYearlyTimestamp = new Map<number, any[]>();
-
+      // Group all pricing by period
+      const dataByQuarter = new MapArray<ValueStamp, any>();
+      const dataByYear = new MapArray<ValueStamp, any>();
       for (const price of prices) {
-        const date = moment.utc(price.date);
-        const quarter = moment(date).startOf('quarter').valueOf();
-        const year = moment(date).startOf('year').valueOf();
-        const value = {
+        if (!price) {
+          continue;
+        }
+        const date = moment.utc(price.date).valueOf();
+        const quarter = moment(date).endOf('quarter').valueOf() as ValueStamp;
+        const year = moment(date).endOf('year').valueOf() as ValueStamp;
+        const data = {
           date: date,
           price: price.adjusted_close,
           share: price.close,
           volume: price.volume,
         };
-        const valuesQuarterly = valuesByQuarterlyTimestamp.get(quarter) ?? [];
-        valuesQuarterly.push(value);
-        valuesByQuarterlyTimestamp.set(quarter, valuesQuarterly);
-        const valuesYearly = valuesByYearlyTimestamp.get(year) ?? [];
-        valuesYearly.push(value);
-        valuesByYearlyTimestamp.set(year, valuesYearly);
+        dataByQuarter.push(quarter, data);
+        dataByYear.push(year, data);
       }
 
-      let toInsert: ValueShell[] = [];
-
-      valuesByQuarterlyTimestamp.forEach((values: any[], key: number) => {
-        values.sort((a, b) => {
-          return a.date - b.date;
+      // Choose and format a single value for each period
+      let values: ValueShell[] = [];
+      dataByQuarter.forEach((data: any[], stamp: ValueStamp) => {
+        data.sort((a, b) => {
+          return b.date - a.date;
         });
-        toInsert.push({
-          ticker_id: ticker.id,
-          metric_id: metricPriceQuarterly.id,
-          unit_id: ticker.unit_id,
-          stamp: values[0].date.valueOf(),
-          value: values[0].price,
-        });
-      });
-
-      valuesByYearlyTimestamp.forEach((values: any[], key: number) => {
-        values.sort((a, b) => {
-          return a.date - b.date;
-        });
-        toInsert.push({
+        values.push({
           ticker_id: ticker.id,
           metric_id: metricPriceYearly.id,
           unit_id: ticker.unit_id,
-          stamp: values[0].date.valueOf(),
-          value: values[0].price,
+          stamp: stamp,
+          value: data[0].price,
+        });
+      });
+      dataByYear.forEach((data: any[], stamp: ValueStamp) => {
+        data.sort((a, b) => {
+          return b.date - a.date;
+        });
+        values.push({
+          ticker_id: ticker.id,
+          metric_id: metricPriceQuarterly.id,
+          unit_id: ticker.unit_id,
+          stamp: stamp,
+          value: data[0].price,
         });
       });
 
-      const up = new Map<string, ValueShell>();
-      toInsert.forEach((value: ValueShell) => {
-        const key = value.metric_id + '_' + value.stamp;
-        if (up.has(key)) {
-          console.log('WHUT', up.get(key), value);
+      // Decide mutations on DB
+      let inserts: ValueShell[] = [];
+      let updates: Value[] = [];
+      for (const value of values) {
+        const existing = chunkTicker.get(value.metric_id, value.stamp);
+        if (existing) {
+          if (value.value != existing.value || value.unit_id != existing.unit_id) {
+            updates.push({ id: existing.id, ...value });
+          }
+        } else {
+          inserts.push(value);
         }
-        up.set(key, value);
-      });
-      console.log('what');
-
-      toInsert = toInsert.filter((value: ValueShell) => {
-        return !valuesByStampByMetricId.get(value.metric_id)?.get(value.stamp);
-      });
-
-      console.log(' End');
-      try {
-        await ValueTable.insertBatch(toInsert);
-      } catch (e) {
-        console.log('up', e, toInsert);
       }
 
-      console.log(' done');
+      // Database mutations
+      if (inserts.length > 0) {
+        console.log('[SYNC] DB ++ INSERTING', inserts.length);
+        await ValueTable.insertBatch(inserts);
+      }
+      if (updates.length > 0) {
+        console.log('[SYNC] DB == UPDATING', updates.length);
+        await ValueTable.updateBatch(updates);
+      }
+
+      // Log for progress
+      console.log(
+        `[SYNC]`,
+        // Ticker
+        Strings.padPostfix(`${ticker.code}`, 10),
+        '-',
+        Strings.ellipsis(Strings.padPostfix(`${ticker.name}`, 45), 45),
+        // Sync status
+        Strings.padPrefix(i + 1, 5, '0'),
+        '/',
+        Strings.padPrefix(tickers.length, 5, '0'),
+        // Notes
+        '-',
+        Strings.padPostfix(`{${ticker.type}}`, 10),
+        '-',
+        Strings.padPostfix(`<Prices>`, 0)
+      );
     }
   }
 }

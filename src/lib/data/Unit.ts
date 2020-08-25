@@ -1,5 +1,8 @@
+import { Branded } from '../struct/Branded';
+
+export type UnitId = Branded<number, 'UnitId'>;
 export interface Unit extends UnitShell {
-  id: number;
+  id: UnitId;
 }
 export interface UnitShell {
   code: string;

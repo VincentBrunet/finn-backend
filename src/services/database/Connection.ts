@@ -44,6 +44,15 @@ export class Connection {
     const connection = await Connection.connect();
     return await connection.update(value).where('id', value.id).from(table);
   }
+  static async updateBatch<T extends Model>(table: string, values: T[]) {
+    if (debug) {
+      console.log('update', values);
+    }
+    const connection = await Connection.connect();
+    for (const value of values) {
+      await connection.update(value).where('id', value.id).from(table);
+    }
+  }
   static async insert<T extends ModelShell>(table: string, value: T) {
     if (debug) {
       console.log('insert', value);

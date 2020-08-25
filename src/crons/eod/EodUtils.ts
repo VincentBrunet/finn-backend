@@ -1,9 +1,18 @@
-import { MetricTable } from '../../services/database/MetricTable';
-import { Ticker } from '../../lib/data/Ticker';
-import { UnitTable } from '../../services/database/UnitTable';
-import { Value } from '../../lib/data/Value';
-import { ValueTable } from '../../services/database/ValueTable';
 import moment from 'moment';
+
+import {
+  Value,
+  ValueChunkTicker,
+  ValueShell,
+  ValueStamp,
+  ValueValue,
+} from './../../lib/data/Value';
+import { MetricCategory, MetricPeriod } from '../../lib/data/Metric';
+import { Ticker } from '../../lib/data/Ticker';
+import { Unit } from '../../lib/data/Unit';
+import { MetricTable } from '../../services/database/MetricTable';
+import { UnitTable } from '../../services/database/UnitTable';
+import { ValueTable } from '../../services/database/ValueTable';
 
 const blackListKeys = new Set<string>();
 blackListKeys.add('date');
@@ -16,38 +25,39 @@ export class EodUtils {
   static async uploadValuesHistories(
     ticker: Ticker,
     data: any,
-    category: string,
-    valuesByStampByMetricId: Map<number, Map<number, Value>>
+    category: MetricCategory,
+    chunkTicker: ValueChunkTicker
   ) {
+    const unit = await UnitTable.lookupByCode(data['currency_symbol']);
     await EodUtils.uploadValuesHistory(
       ticker,
       data['quarterly'],
       category,
-      'Quarterly',
-      data['currency_symbol'],
-      valuesByStampByMetricId
+      MetricPeriod.Quarterly,
+      unit,
+      chunkTicker
     );
     await EodUtils.uploadValuesHistory(
       ticker,
       data['yearly'],
       category,
-      'Yearly',
-      data['currency_symbol'],
-      valuesByStampByMetricId
+      MetricPeriod.Yearly,
+      unit,
+      chunkTicker
     );
   }
 
   static async uploadValuesHistory(
     ticker: Ticker,
     data: any,
-    category: string,
-    period: string,
-    unitName: string,
-    existings: Map<number, Map<number, Value>>
+    category: MetricCategory,
+    period: MetricPeriod,
+    unit: Unit,
+    chunkTicker: ValueChunkTicker
   ) {
     try {
-      const inserts = [];
-      const updates = [];
+      const inserts: ValueShell[] = [];
+      const updates: Value[] = [];
       for (const key in data) {
         const object = data[key];
         let date = object['date'];
@@ -55,13 +65,13 @@ export class EodUtils {
         date = date.replace('Q2', '04-01');
         date = date.replace('Q3', '07-01');
         date = date.replace('Q4', '10-01');
-        const stamp = moment.utc(date).valueOf();
+        const stamp = moment.utc(date).valueOf() as ValueStamp;
         if (isNaN(stamp)) {
           continue;
         }
-        const currency = object['currency_symbol'];
-        if (currency) {
-          unitName = currency;
+        const innerUnit = await UnitTable.lookupByCode(object['currency_symbol']);
+        if (innerUnit.symbol) {
+          unit = innerUnit;
         }
         for (const key in object) {
           if (blackListKeys.has(key)) {
@@ -76,17 +86,11 @@ export class EodUtils {
           if (isNaN(numberized)) {
             continue;
           }
-          const value = parseFloat(numberized.toPrecision(15));
+          const value = parseFloat(numberized.toPrecision(15)) as ValueValue;
           const name = key[0].toUpperCase() + key.slice(1);
           const metric = await MetricTable.lookup(name, category, period);
-          if (!metric) {
-            continue;
-          }
-          const unit = await UnitTable.lookupByCode(unitName);
-          if (!unit) {
-            continue;
-          }
-          const existing = existings.get(metric.id)?.get(stamp);
+
+          const existing = chunkTicker.get(metric.id, stamp as ValueStamp);
           if (!existing) {
             inserts.push({
               ticker_id: ticker.id,
@@ -97,9 +101,9 @@ export class EodUtils {
             });
           }
           if (existing) {
-            if (existing?.value !== value || existing.unit_id !== unit.id) {
+            if (existing.value !== value || existing.unit_id !== unit.id) {
               updates.push({
-                id: existing?.id,
+                id: existing.id,
                 ticker_id: ticker.id,
                 metric_id: metric.id,
                 unit_id: unit.id,
@@ -132,17 +136,11 @@ export class EodUtils {
       }
       if (inserts.length > 0) {
         console.log('[SYNC] DB ++ INSERTING', inserts.length);
-        try {
-          await ValueTable.insertBatch(inserts);
-        } catch (e) {
-          console.log('Error', e, inserts);
-        }
+        await ValueTable.insertBatch(inserts);
       }
       if (updates.length > 0) {
         console.log('[SYNC] DB == UPDATING', updates.length);
-        for (const update of updates) {
-          await ValueTable.update(update);
-        }
+        await ValueTable.updateBatch(updates);
       }
     } catch (e) {
       console.log('Could not upload', e);

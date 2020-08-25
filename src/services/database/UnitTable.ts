@@ -1,5 +1,6 @@
 import { Unit, UnitShell } from '../../lib/data/Unit';
 import { Connection } from './Connection';
+import { ErrorDatabase } from './ErrorDatabase';
 
 export class UnitTable {
   /**
@@ -58,6 +59,10 @@ export class UnitTable {
       });
       UnitTable.cacheByCode = await UnitTable.mapByCode();
     }
-    return UnitTable.cacheByCode.get(code);
+    const final = UnitTable.cacheByCode.get(code);
+    if (!final) {
+      throw new ErrorDatabase('Could not create unit: ' + code);
+    }
+    return final;
   }
 }

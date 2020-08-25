@@ -1,5 +1,7 @@
+import { MetricCategory, MetricPeriod } from './../../lib/data/Metric';
 import { Metric, MetricShell } from '../../lib/data/Metric';
 import { Connection } from './Connection';
+import { ErrorDatabase } from './ErrorDatabase';
 
 export class MetricTable {
   /**
@@ -51,7 +53,7 @@ export class MetricTable {
    * Cached lookup
    */
   private static cache: Map<string, Metric>;
-  static async lookup(name: string, category: string, period: string) {
+  static async lookup(name: string, category: MetricCategory, period: MetricPeriod) {
     const key = MetricTable.key({ name, category, period });
     if (!MetricTable.cache) {
       MetricTable.cache = await MetricTable.mapByKey();
@@ -64,6 +66,10 @@ export class MetricTable {
       });
       MetricTable.cache = await MetricTable.mapByKey();
     }
-    return MetricTable.cache.get(key);
+    const final = MetricTable.cache.get(key);
+    if (!final) {
+      throw new ErrorDatabase('Could not create metric:' + key);
+    }
+    return final;
   }
 }
