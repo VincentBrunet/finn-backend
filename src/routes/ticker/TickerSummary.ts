@@ -1,3 +1,4 @@
+import { MetricPeriod } from './../../lib/data/Metric';
 import { Metric } from '../../lib/data/Metric';
 import { MetricTable } from '../../services/database/MetricTable';
 import { TickerTable } from '../../services/database/TickerTable';
@@ -18,7 +19,7 @@ export class TickerSummary implements Route {
       throw new ErrorNotFound('Ticker not found: ' + param.code);
     }
 
-    const metrics = await MetricTable.listForPeriod('Yearly');
+    const metrics = await MetricTable.listForPeriod(MetricPeriod.Yearly);
     const chunkTicker = await ValueTable.chunkTicker(ticker);
 
     const charts = metrics

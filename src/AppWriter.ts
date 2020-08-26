@@ -2,7 +2,7 @@ import { App } from './App';
 import { EodExchanges } from './crons/eod/EodExchanges';
 import { EodStocksFundamentals } from './crons/eod/EodStocksFundamentals';
 import { EodStocksPrices } from './crons/eod/EodStocksPrices';
-import { EodTickers } from './crons/eod/EodTickers';
+import { EodStocksTickers } from './crons/eod/EodStocksTickers';
 
 export class AppWriter extends App {
   protected setup() {
@@ -18,7 +18,7 @@ export class AppWriter extends App {
     // Schedule first pass
     this.run('/eod/exchanges', EodExchanges, firstPass, repeater);
     // Schedule second pass
-    this.run('/eod/tickers', EodTickers, secondPass, repeater);
+    this.run('/eod/stocks-tickers', EodStocksTickers, secondPass, repeater);
     // Schedule third pass
     this.run('/eod/stocks-prices', EodStocksPrices, thirdPass, repeater);
     this.run('/eod/stocks-fundamentals', EodStocksFundamentals, thirdPass, repeater);

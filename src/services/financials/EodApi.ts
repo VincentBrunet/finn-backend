@@ -1,8 +1,7 @@
 import moment from 'moment';
 
-import { HttpCache } from '../utils/HttpCache';
-
 import { Strings } from '../../lib/primitives/Strings';
+import { HttpCache } from '../utils/HttpCache';
 
 export class EodApi {
   static thisMonth() {

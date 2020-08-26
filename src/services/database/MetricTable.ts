@@ -20,7 +20,10 @@ export class MetricTable {
   static async insertIgnoreFailure(value: MetricShell) {
     await Connection.insertIgnoreFailure<MetricShell>(MetricTable.table, value);
   }
-  static async listForPeriod(period: string) {
+  /**
+   * Filtered reading
+   */
+  static async listForPeriod(period: MetricPeriod) {
     const connection = await Connection.connect();
     const query = connection.select('*').from(MetricTable.table);
     return await query.where('period', period);

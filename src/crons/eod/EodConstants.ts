@@ -1,15 +1,19 @@
 import { TickerType } from './../../lib/data/Ticker';
 
 export class EodConstants {
+  static tickerTypeWhitelist = new Set<TickerType>([TickerType.CommonStock, TickerType.Currency]);
+
   static symbolTypeToTickerType = new Map<string, TickerType>([
     ['Common Stock', TickerType.CommonStock],
+    ['Currency', TickerType.Currency],
   ]);
 
-  static symbolExchangeWhiteList = new Set<string>([
+  static symbolExchangeWhitelist = new Set<string>([
     'NASDAQ', // USA
     'NYSE', // NYC
     'AMEX', // NYC
     'US', // USA
+    'FOREX', // Currency pairs
   ]);
 
   static symbolExchangeBlacklist = new Set<string | null>([
@@ -23,7 +27,6 @@ export class EodConstants {
     'OTCQX', // is OTC, bad fundamental data
     'OTCCE', // is OTC, bad fundamental data
     'Futures', // Contains future contracts only ?
-    'FOREX', //   <----- TODO ?
     'INDX', // Indices
     'COMM', // Commodities
     'CC', // Crypto-Currencies
@@ -31,7 +34,7 @@ export class EodConstants {
     'ETLX', // Italy certificates?
     'BOND', // Bonds
     'EUFUND', // Mostly weird funds
-    'MONEY', // Currencies
+    'MONEY', // Currencies (EU exchanges)
     'GBOND', // Country bonds
     'IL', // Unknown country stocks
   ]);

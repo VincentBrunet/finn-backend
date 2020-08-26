@@ -16,5 +16,6 @@ export interface TickerShell {
 }
 
 export enum TickerType {
+  Currency = 'currency',
   CommonStock = 'common-stock',
 }

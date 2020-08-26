@@ -1,11 +1,11 @@
 import { MetricCategory, MetricPeriod } from './../../lib/data/Metric';
-import { TickerType } from './../../lib/data/Ticker';
 import { UnitTable } from './../../services/database/UnitTable';
 import { Strings } from '../../lib/primitives/Strings';
 import { TickerTable } from '../../services/database/TickerTable';
 import { ValueTable } from '../../services/database/ValueTable';
 import { EodApi } from '../../services/financials/EodApi';
 import { Cron } from '../Cron';
+import { EodConstants } from './EodConstants';
 import { EodUtils } from './EodUtils';
 
 export class EodStocksFundamentals extends Cron {
@@ -18,7 +18,7 @@ export class EodStocksFundamentals extends Cron {
       const ticker = tickers[i];
 
       // Make sure we only deal with the common stocks
-      if (ticker.type !== TickerType.CommonStock) {
+      if (!EodConstants.tickerTypeWhitelist.has(ticker.type)) {
         continue;
       }
 
