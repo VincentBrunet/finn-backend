@@ -1,5 +1,10 @@
-import { MetricCategory, MetricPeriod } from './../../lib/data/Metric';
-import { Metric, MetricShell } from '../../lib/data/Metric';
+import {
+  Metric,
+  MetricCategory,
+  MetricName,
+  MetricPeriod,
+  MetricShell,
+} from '../../lib/data/Metric';
 import { Connection } from './Connection';
 import { ErrorDatabase } from './ErrorDatabase';
 
@@ -56,7 +61,7 @@ export class MetricTable {
    * Cached lookup
    */
   private static cache: Map<string, Metric>;
-  static async lookup(name: string, category: MetricCategory, period: MetricPeriod) {
+  static async lookup(name: MetricName, category: MetricCategory, period: MetricPeriod) {
     const key = MetricTable.key({ name, category, period });
     if (!MetricTable.cache) {
       MetricTable.cache = await MetricTable.mapByKey();

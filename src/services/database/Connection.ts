@@ -48,6 +48,9 @@ export class Connection {
     if (debug) {
       console.log('update', values);
     }
+    if (!values) {
+      return;
+    }
     const connection = await Connection.connect();
     for (const value of values) {
       await connection.update(value).where('id', value.id).from(table);
@@ -63,6 +66,9 @@ export class Connection {
   static async insertBatch<T extends ModelShell>(table: string, values: T[]) {
     if (debug) {
       console.log('insert', values);
+    }
+    if (!values) {
+      return;
     }
     const connection = await Connection.connect();
     return connection.batchInsert(table, values, 100);

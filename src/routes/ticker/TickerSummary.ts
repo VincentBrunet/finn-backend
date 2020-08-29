@@ -19,7 +19,7 @@ export class TickerSummary implements Route {
       throw new ErrorNotFound('Ticker not found: ' + param.code);
     }
 
-    const metrics = await MetricTable.listForPeriod(MetricPeriod.Yearly);
+    const metrics = await MetricTable.listForPeriod(MetricPeriod.Quarterly);
     const chunkTicker = await ValueTable.chunkTicker(ticker);
 
     const charts = metrics

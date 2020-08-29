@@ -24,14 +24,6 @@ export async function up(knex: Knex): Promise<any> {
 
       table.unique(['code']);
     })
-    .createTable('company', (table: Knex.CreateTableBuilder) => {
-      table.increments('id').primary().notNullable();
-
-      table.string('unique', 256).notNullable();
-      table.string('image', 1024).notNullable();
-
-      table.unique(['unique']);
-    })
     .createTable('ticker', (table: Knex.CreateTableBuilder) => {
       table.increments('id').primary().notNullable();
 
@@ -44,6 +36,17 @@ export async function up(knex: Knex): Promise<any> {
       table.string('platform', 31).notNullable();
 
       table.unique(['code']);
+    })
+    .createTable('meta', (table: Knex.CreateTableBuilder) => {
+      table.increments('id').primary().notNullable();
+
+      table.integer('ticker_id').unsigned().references('id').inTable('ticker').notNullable();
+
+      table.string('name', 63).notNullable();
+      table.string('param', 63).notNullable();
+      table.jsonb('content').notNullable();
+
+      table.unique(['ticker_id', 'name', 'param']);
     })
     .createTable('metric', (table: Knex.CreateTableBuilder) => {
       table.increments('id').primary().notNullable();
@@ -72,8 +75,8 @@ export async function down(knex: Knex): Promise<any> {
   return knex.schema
     .dropTableIfExists('value')
     .dropTableIfExists('metric')
+    .dropTableIfExists('meta')
     .dropTableIfExists('ticker')
-    .dropTableIfExists('company')
     .dropTableIfExists('exchange')
     .dropTableIfExists('unit');
 }

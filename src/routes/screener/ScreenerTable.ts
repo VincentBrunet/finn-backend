@@ -19,9 +19,9 @@ export class ScreenerTable implements Route {
       sort: true,
     });
 
-    const last = moment().subtract(1, 'year');
-    const min = moment(last).startOf('year');
-    const max = moment(last).endOf('year');
+    const last = moment().subtract(1, 'quarter');
+    const min = moment(last).startOf('quarter');
+    const max = moment(last).endOf('quarter');
 
     const metricByColumn = new Map<string, Metric>();
     const valueByTickerIdByColumn = new Map<string, Map<number, Value>>();

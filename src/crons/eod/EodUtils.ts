@@ -13,6 +13,7 @@ import { Unit } from '../../lib/data/Unit';
 import { MetricTable } from '../../services/database/MetricTable';
 import { UnitTable } from '../../services/database/UnitTable';
 import { ValueTable } from '../../services/database/ValueTable';
+import { EodConstants } from './EodConstants';
 
 const blackListKeys = new Set<string>();
 blackListKeys.add('date');
@@ -90,25 +91,30 @@ export class EodUtils {
             continue;
           }
 
-          const value = parseFloat(numberized.toPrecision(15)) as ValueValue;
           const name = key[0].toUpperCase() + key.slice(1);
-          const metric = await MetricTable.lookup(name, category, period);
+          const metricName = EodConstants.objectKeyToMetricName.get(name);
+          if (metricName === undefined) {
+            console.log('Could not resolve metric name', name, metricName);
+            continue;
+          }
 
-          const valueShell: ValueShell = {
+          const metric = await MetricTable.lookup(metricName, category, period);
+
+          const value: ValueShell = {
             ticker_id: ticker.id,
             metric_id: metric.id,
             unit_id: unit.id,
             stamp: stamp,
-            value: value,
+            value: parseFloat(numberized.toPrecision(15)) as ValueValue,
           };
 
           const existing = chunkTicker.get(metric.id, stamp as ValueStamp);
           if (!existing) {
-            inserts.push(valueShell);
+            inserts.push(value);
           }
           if (existing) {
-            if (existing.value !== valueShell.value || existing.unit_id !== valueShell.unit_id) {
-              updates.push({ id: existing.id, ...valueShell });
+            if (existing.value !== value.value || existing.unit_id !== value.unit_id) {
+              updates.push({ id: existing.id, ...value });
             }
           }
         }
