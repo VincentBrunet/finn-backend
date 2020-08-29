@@ -38,14 +38,17 @@ export class EodMetas extends Cron {
           continue;
         }
 
+        const value = general[key];
+        if (!value) {
+          continue;
+        }
+
         const meta: MetaShell = {
           ticker_id: ticker.id,
           name: metaName,
           param: '' as MetaParam,
-          content: JSON.stringify(general[key]),
+          content: JSON.stringify(value),
         };
-
-        console.log('Content', general[key]);
 
         const existing = metaForTicker.get(MetaTable.key(meta));
         if (existing) {

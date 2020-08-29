@@ -16,10 +16,10 @@ export interface MetaShell {
 export enum MetaName {
   Unknown = 'unknown',
   Logo = 'logo',
-  Description = 'Description',
-  Sector = 'Sector',
-  Industry = 'Industry',
-  Address = 'Address',
-  Website = 'Website',
-  Category = 'Category',
+  Description = 'description',
+  Sector = 'sector',
+  Industry = 'industry',
+  Address = 'address',
+  Website = 'website',
+  Category = 'category',
 }
