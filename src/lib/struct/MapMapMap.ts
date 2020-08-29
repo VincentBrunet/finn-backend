@@ -26,4 +26,13 @@ export class MapMapMap<K1, K2, K3, V> {
   public clear() {
     this.map1.clear();
   }
+  public forEach(cb: (value: V, key1: K1, key2: K2, key3: K3) => void) {
+    this.map1.forEach((map2, key1) => {
+      map2.forEach((map3, key2) => {
+        map3.forEach((value, key3) => {
+          cb(value, key1, key2, key3);
+        });
+      });
+    });
+  }
 }

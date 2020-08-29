@@ -1,19 +1,18 @@
 import { MetricPeriod } from './../../lib/data/Metric';
-import { Metric } from '../../lib/data/Metric';
-import { MetricTable } from '../../services/database/MetricTable';
-import { TickerTable } from '../../services/database/TickerTable';
-import { ValueTable } from '../../services/database/ValueTable';
-import { Route } from '../Route';
-import { ErrorNotFound } from '../utils/ErrorNotFound';
+import { Metric } from './../../lib/data/Metric';
+import { MetricTable } from './../../services/database/MetricTable';
+import { TickerTable } from './../../services/database/TickerTable';
+import { ValueTable } from './../../services/database/ValueTable';
+import { Route } from './../Route';
+import { ErrorNotFound } from './../utils/ErrorNotFound';
 
 export class TickerSummary implements Route {
   async run(param: any) {
-    const tickerBySymbol = await TickerTable.mapBySymbol();
     const tickerByCode = await TickerTable.mapByCode();
 
     let ticker = tickerByCode.get(param.code);
     if (!ticker) {
-      ticker = tickerBySymbol.get(param.code);
+      ticker = tickerByCode.get(param.code + '.US');
     }
     if (!ticker) {
       throw new ErrorNotFound('Ticker not found: ' + param.code);

@@ -1,12 +1,12 @@
 import FuzzySearch from 'fuzzy-search';
 import moment from 'moment';
 
-import { Metric } from '../../lib/data/Metric';
-import { Value } from '../../lib/data/Value';
-import { MetricTable } from '../../services/database/MetricTable';
-import { TickerTable } from '../../services/database/TickerTable';
-import { ValueTable } from '../../services/database/ValueTable';
-import { Route } from '../Route';
+import { Metric } from './../../lib/data/Metric';
+import { Value } from './../../lib/data/Value';
+import { MetricTable } from './../../services/database/MetricTable';
+import { TickerTable } from './../../services/database/TickerTable';
+import { ValueTable } from './../../services/database/ValueTable';
+import { Route } from './../Route';
 
 export class ScreenerTable implements Route {
   async run(param: any) {

@@ -1,10 +1,11 @@
 import {
   Metric,
   MetricCategory,
+  MetricId,
   MetricName,
   MetricPeriod,
   MetricShell,
-} from '../../lib/data/Metric';
+} from './../../lib/data/Metric';
 import { Connection } from './Connection';
 import { ErrorDatabase } from './ErrorDatabase';
 
@@ -41,7 +42,7 @@ export class MetricTable {
   }
   static async mapById() {
     const list = await MetricTable.list();
-    const mapping = new Map<number, Metric>();
+    const mapping = new Map<MetricId, Metric>();
     for (const item of list) {
       if (item.id) {
         mapping.set(item.id, item);

@@ -1,10 +1,10 @@
-import { MetricCategory, MetricPeriod } from '../../lib/data/Metric';
-import { Strings } from '../../lib/primitives/Strings';
-import { TickerTable } from '../../services/database/TickerTable';
-import { UnitTable } from '../../services/database/UnitTable';
-import { ValueTable } from '../../services/database/ValueTable';
-import { EodApi } from '../../services/financials/EodApi';
-import { Cron } from '../Cron';
+import { MetricCategory, MetricPeriod } from './../../lib/data/Metric';
+import { Strings } from './../../lib/primitives/Strings';
+import { TickerTable } from './../../services/database/TickerTable';
+import { UnitTable } from './../../services/database/UnitTable';
+import { ValueTable } from './../../services/database/ValueTable';
+import { EodApi } from './../../services/financials/EodApi';
+import { Cron } from './../Cron';
 import { EodConstants } from './EodConstants';
 import { EodUtils } from './EodUtils';
 

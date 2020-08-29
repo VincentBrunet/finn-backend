@@ -1,4 +1,4 @@
-import { Exchange, ExchangeShell } from '../../lib/data/Exchange';
+import { Exchange, ExchangeId, ExchangeShell } from './../../lib/data/Exchange';
 import { Connection } from './Connection';
 
 export class ExchangeTable {
@@ -20,7 +20,7 @@ export class ExchangeTable {
    */
   static async mapById() {
     const list = await ExchangeTable.list();
-    const mapping = new Map<number, Exchange>();
+    const mapping = new Map<ExchangeId, Exchange>();
     for (const item of list) {
       mapping.set(item.id, item);
     }

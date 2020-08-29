@@ -1,4 +1,4 @@
-import { Branded } from '../struct/Branded';
+import { Branded } from './../struct/Branded';
 
 export type TimestampMs = Branded<number, 'TimestampMs'>;
 export type TimestampSec = Branded<number, 'TimestampSec'>;

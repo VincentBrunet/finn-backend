@@ -1,4 +1,4 @@
-import { Branded } from '../struct/Branded';
+import { Branded } from './../struct/Branded';
 
 export type UnitId = Branded<number, 'UnitId'>;
 export interface Unit extends UnitShell {

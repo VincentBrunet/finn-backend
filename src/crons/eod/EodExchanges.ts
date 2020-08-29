@@ -1,8 +1,8 @@
-import { ExchangeShell } from '../../lib/data/Exchange';
-import { ExchangeTable } from '../../services/database/ExchangeTable';
-import { UnitTable } from '../../services/database/UnitTable';
-import { EodApi } from '../../services/financials/EodApi';
-import { Cron } from '../Cron';
+import { ExchangeShell } from './../../lib/data/Exchange';
+import { ExchangeTable } from './../../services/database/ExchangeTable';
+import { UnitTable } from './../../services/database/UnitTable';
+import { EodApi } from './../../services/financials/EodApi';
+import { Cron } from './../Cron';
 
 export class EodExchanges extends Cron {
   async run() {

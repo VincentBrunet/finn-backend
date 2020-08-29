@@ -1,40 +1,40 @@
 import moment from 'moment';
 
-import { Metric, MetricCategory, MetricName, MetricPeriod } from '../../lib/data/Metric';
-import { Ticker } from '../../lib/data/Ticker';
-import { Value, ValueShell, ValueStamp } from '../../lib/data/Value';
-import { Strings } from '../../lib/primitives/Strings';
-import { MapArray } from '../../lib/struct/MapArray';
-import { MetricTable } from '../../services/database/MetricTable';
-import { TickerTable } from '../../services/database/TickerTable';
-import { ValueTable } from '../../services/database/ValueTable';
-import { EodApi } from '../../services/financials/EodApi';
-import { Cron } from '../Cron';
+import { MetricCategory, MetricName, MetricPeriod } from './../../lib/data/Metric';
+import { Value, ValueShell, ValueStamp } from './../../lib/data/Value';
+import { Strings } from './../../lib/primitives/Strings';
+import { MetricTable } from './../../services/database/MetricTable';
+import { TickerTable } from './../../services/database/TickerTable';
+import { ValueTable } from './../../services/database/ValueTable';
+import { EodApi } from './../../services/financials/EodApi';
+import { Cron } from './../Cron';
 import { EodConstants } from './EodConstants';
 
 export class EodPrices extends Cron {
   async run() {
     // Pricing metrics
-    const metricPriceDay = await MetricTable.lookup(
+    const metricDay = await MetricTable.lookup(
       MetricName.Price,
       MetricCategory.Trading,
       MetricPeriod.Daily
     );
-    const metricPriceMonth = await MetricTable.lookup(
+    const metricMonth = await MetricTable.lookup(
       MetricName.Price,
       MetricCategory.Trading,
       MetricPeriod.Monthly
     );
-    const metricPriceQuarter = await MetricTable.lookup(
+    const metricQuarter = await MetricTable.lookup(
       MetricName.Price,
       MetricCategory.Trading,
       MetricPeriod.Quarterly
     );
-    const metricPriceYear = await MetricTable.lookup(
+    const metricYear = await MetricTable.lookup(
       MetricName.Price,
       MetricCategory.Trading,
       MetricPeriod.Yearly
     );
+
+    const metrics = [metricDay, metricMonth, metricQuarter, metricYear];
 
     // Loop over all tickers
     const tickers = await TickerTable.list();
@@ -56,34 +56,19 @@ export class EodPrices extends Cron {
       }
 
       // Group all pricing by period
-      const dataByDay = new MapArray<ValueStamp, any>();
-      const dataByMonth = new MapArray<ValueStamp, any>();
-      const dataByQuarter = new MapArray<ValueStamp, any>();
-      const dataByYear = new MapArray<ValueStamp, any>();
-      for (const price of prices) {
-        const date = moment.utc(price.date).valueOf();
-        const day = moment(date).endOf('day').valueOf() as ValueStamp;
-        const month = moment(date).endOf('month').valueOf() as ValueStamp;
-        const quarter = moment(date).endOf('quarter').valueOf() as ValueStamp;
-        const year = moment(date).endOf('year').valueOf() as ValueStamp;
-        const data = {
-          date: date,
-          price: price.adjusted_close,
-          share: price.close,
-          volume: price.volume,
-        };
-        dataByDay.push(day, data);
-        dataByMonth.push(month, data);
-        dataByQuarter.push(quarter, data);
-        dataByYear.push(year, data);
-      }
-
-      // Choose and format a single value for each period
       let values: ValueShell[] = [];
-      this.dataToValues(dataByDay, metricPriceDay, ticker, values);
-      this.dataToValues(dataByMonth, metricPriceMonth, ticker, values);
-      this.dataToValues(dataByQuarter, metricPriceQuarter, ticker, values);
-      this.dataToValues(dataByYear, metricPriceYear, ticker, values);
+      for (const price of prices) {
+        const stamp = moment.utc(price.date).valueOf() as ValueStamp;
+        for (const metric of metrics) {
+          values.push({
+            metric_id: metric.id,
+            ticker_id: ticker.id,
+            unit_id: ticker.unit_id,
+            stamp: stamp,
+            value: price.adjusted_close,
+          });
+        }
+      }
 
       // Decide mutations on DB
       let inserts: ValueShell[] = [];
@@ -121,26 +106,5 @@ export class EodPrices extends Cron {
         Strings.padPostfix(`<Prices>`, 0)
       );
     }
-  }
-
-  // Only keep a single value for each data period
-  dataToValues(
-    dataByPeriod: MapArray<ValueStamp, any>,
-    metric: Metric,
-    ticker: Ticker,
-    values: ValueShell[]
-  ) {
-    dataByPeriod.forEach((data: any[], stamp: ValueStamp) => {
-      data.sort((a, b) => {
-        return b.date - a.date;
-      });
-      values.push({
-        ticker_id: ticker.id,
-        metric_id: metric.id,
-        unit_id: ticker.unit_id,
-        stamp: stamp,
-        value: data[0].price,
-      });
-    });
   }
 }

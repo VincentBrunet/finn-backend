@@ -1,5 +1,5 @@
-import { Meta, MetaShell } from '../../lib/data/Meta';
-import { Ticker } from '../../lib/data/Ticker';
+import { Meta, MetaShell } from './../../lib/data/Meta';
+import { Ticker } from './../../lib/data/Ticker';
 import { Connection } from './Connection';
 
 export class MetaTable {

@@ -1,6 +1,6 @@
 import Knex from 'knex';
 
-import knexfile from '../../config/knexfile';
+import knexfile from './../../config/knexfile';
 
 const debug = false;
 

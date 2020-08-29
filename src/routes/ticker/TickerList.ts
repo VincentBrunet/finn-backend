@@ -1,5 +1,5 @@
-import { Route } from '../Route';
-import { TickerTable } from '../../services/database/TickerTable';
+import { TickerTable } from './../../services/database/TickerTable';
+import { Route } from './../Route';
 
 export class TickerList implements Route {
   async run(param: any) {

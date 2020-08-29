@@ -1,9 +1,9 @@
-import { TickerShell } from '../../lib/data/Ticker';
-import { ExchangeTable } from '../../services/database/ExchangeTable';
-import { TickerTable } from '../../services/database/TickerTable';
-import { UnitTable } from '../../services/database/UnitTable';
-import { EodApi } from '../../services/financials/EodApi';
-import { Cron } from '../Cron';
+import { TickerShell } from './../../lib/data/Ticker';
+import { ExchangeTable } from './../../services/database/ExchangeTable';
+import { TickerTable } from './../../services/database/TickerTable';
+import { UnitTable } from './../../services/database/UnitTable';
+import { EodApi } from './../../services/financials/EodApi';
+import { Cron } from './../Cron';
 import { EodConstants } from './EodConstants';
 
 export class EodTickers extends Cron {

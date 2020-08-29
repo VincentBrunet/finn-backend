@@ -1,4 +1,4 @@
-import { Branded } from '../struct/Branded';
+import { Branded } from './../struct/Branded';
 import { ExchangeId } from './Exchange';
 import { UnitId } from './Unit';
 

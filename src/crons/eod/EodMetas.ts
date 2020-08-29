@@ -1,10 +1,9 @@
-import { Meta, MetaParam } from './../../lib/data/Meta';
-import { MetaShell } from '../../lib/data/Meta';
-import { Strings } from '../../lib/primitives/Strings';
-import { MetaTable } from '../../services/database/MetaTable';
-import { TickerTable } from '../../services/database/TickerTable';
-import { EodApi } from '../../services/financials/EodApi';
-import { Cron } from '../Cron';
+import { Meta, MetaName, MetaParam, MetaShell } from './../../lib/data/Meta';
+import { Strings } from './../../lib/primitives/Strings';
+import { MetaTable } from './../../services/database/MetaTable';
+import { TickerTable } from './../../services/database/TickerTable';
+import { EodApi } from './../../services/financials/EodApi';
+import { Cron } from './../Cron';
 import { EodConstants } from './EodConstants';
 
 export class EodMetas extends Cron {
@@ -27,29 +26,48 @@ export class EodMetas extends Cron {
 
       const metaForTicker = await MetaTable.mapByKeyForTicker(ticker);
 
-      const inserts: MetaShell[] = [];
-      const updates: Meta[] = [];
+      const metas: MetaShell[] = [];
 
-      // Automated general meta infos
-      const general = fundamentals['General'];
+      // Automated general keys meta infos
+      const general = fundamentals['General'] ?? {};
       for (const key in general) {
         const metaName = EodConstants.objectKeyToMetaName.get(key);
         if (metaName === undefined) {
           continue;
         }
-
         const value = general[key];
         if (!value) {
           continue;
         }
-
         const meta: MetaShell = {
           ticker_id: ticker.id,
           name: metaName,
           param: '' as MetaParam,
           content: JSON.stringify(value),
         };
+        metas.push(meta);
+      }
 
+      // Specific officers meta infos
+      const officers = general['Officers'];
+      for (const key in officers) {
+        const officer = officers[key];
+        if (!officer) {
+          continue;
+        }
+        const meta: MetaShell = {
+          ticker_id: ticker.id,
+          name: MetaName.Officer,
+          param: key as MetaParam,
+          content: JSON.stringify(officer),
+        };
+        metas.push(meta);
+      }
+
+      // Compute database mutations
+      const inserts: MetaShell[] = [];
+      const updates: Meta[] = [];
+      for (const meta of metas) {
         const existing = metaForTicker.get(MetaTable.key(meta));
         if (existing) {
           if (

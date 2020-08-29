@@ -1,4 +1,4 @@
-import { Ticker, TickerShell } from '../../lib/data/Ticker';
+import { Ticker, TickerId, TickerShell } from './../../lib/data/Ticker';
 import { Connection } from './Connection';
 
 export class TickerTable {
@@ -20,7 +20,7 @@ export class TickerTable {
    */
   static async mapById() {
     const list = await TickerTable.list();
-    const mapping = new Map<number, Ticker>();
+    const mapping = new Map<TickerId, Ticker>();
     for (const item of list) {
       mapping.set(item.id, item);
     }
@@ -31,14 +31,6 @@ export class TickerTable {
     const mapping = new Map<string, Ticker>();
     for (const item of list) {
       mapping.set(item.code, item);
-    }
-    return mapping;
-  }
-  static async mapBySymbol() {
-    const list = await TickerTable.list();
-    const mapping = new Map<string, Ticker>();
-    for (const item of list) {
-      mapping.set(item.code.split('.')[0], item);
     }
     return mapping;
   }

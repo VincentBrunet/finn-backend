@@ -1,10 +1,11 @@
 import moment from 'moment';
 
-import { ValueChunkTicker } from './../../lib/data/Value';
-import { Metric } from '../../lib/data/Metric';
-import { Ticker } from '../../lib/data/Ticker';
-import { Value, ValueShell } from '../../lib/data/Value';
+import { Metric, MetricId } from './../../lib/data/Metric';
+import { Ticker, TickerId } from './../../lib/data/Ticker';
+import { Value, ValueChunkTicker, ValueShell, ValueStamp } from './../../lib/data/Value';
+import { MapMapMapArray } from '../../lib/struct/MapMapMapArray';
 import { Connection } from './Connection';
+import { MetricTable } from './MetricTable';
 
 export class ValueTable {
   /**
@@ -22,6 +23,37 @@ export class ValueTable {
   }
   static async insertBatch(values: ValueShell[]) {
     await Connection.insertBatch<ValueShell>(ValueTable.table, values);
+  }
+  /**
+   * Processing
+   */
+  static async processingCleanup(values: ValueShell[]) {
+    const metricsById = await MetricTable.mapById();
+    const valuesByTickerByMetricByStamp = new MapMapMapArray<
+      TickerId,
+      MetricId,
+      ValueStamp,
+      ValueShell
+    >();
+    for (const value of values) {
+      const metric = metricsById.get(value.metric_id);
+      if (!metric) {
+        continue;
+      }
+      const period = metric.period;
+      const stamp = moment.utc(value.stamp).endOf(period).valueOf() as ValueStamp;
+      valuesByTickerByMetricByStamp.push(value.ticker_id, metric.id, stamp, value);
+    }
+    const deduped: ValueShell[] = [];
+    valuesByTickerByMetricByStamp.forEach((values, _1, _2, stamp) => {
+      values.sort((a, b) => {
+        return b.stamp - a.stamp;
+      });
+      const kept = values[0];
+      kept.stamp = stamp;
+      deduped.push(kept);
+    });
+    return deduped;
   }
   /**
    * Filtered reading

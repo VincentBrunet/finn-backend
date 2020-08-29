@@ -1,4 +1,4 @@
-import { Branded } from '../struct/Branded';
+import { Branded } from './../struct/Branded';
 import { TickerId } from './Ticker';
 
 export type MetaId = Branded<number, 'MetaId'>;
@@ -22,4 +22,5 @@ export enum MetaName {
   Address = 'address',
   Website = 'website',
   Category = 'category',
+  Officer = 'officer',
 }

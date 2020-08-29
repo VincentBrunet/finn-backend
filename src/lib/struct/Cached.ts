@@ -1,4 +1,4 @@
-import { DurationMs, TimestampMs, nowTimestampMs } from '../primitives/Time';
+import { DurationMs, TimestampMs, nowTimestampMs } from './../primitives/Time';
 
 export class CachedSync<T> {
   lastTime?: TimestampMs;

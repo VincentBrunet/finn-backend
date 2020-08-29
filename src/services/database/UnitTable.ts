@@ -1,4 +1,4 @@
-import { Unit, UnitShell } from '../../lib/data/Unit';
+import { Unit, UnitId, UnitShell } from './../../lib/data/Unit';
 import { Connection } from './Connection';
 import { ErrorDatabase } from './ErrorDatabase';
 
@@ -24,7 +24,7 @@ export class UnitTable {
    */
   static async mapById() {
     const list = await UnitTable.list();
-    const mapping = new Map<number, Unit>();
+    const mapping = new Map<UnitId, Unit>();
     for (const item of list) {
       mapping.set(item.id, item);
     }

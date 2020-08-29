@@ -1,4 +1,4 @@
-import { Branded } from '../struct/Branded';
+import { Branded } from './../struct/Branded';
 import { UnitId } from './Unit';
 
 export type ExchangeId = Branded<number, 'ExchangeId'>;

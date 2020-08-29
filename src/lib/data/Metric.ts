@@ -1,4 +1,4 @@
-import { Branded } from '../struct/Branded';
+import { Branded } from './../struct/Branded';
 
 export type MetricId = Branded<number, 'MetricId'>;
 export interface Metric extends MetricShell {

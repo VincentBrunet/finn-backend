@@ -1,5 +1,5 @@
-import { MetricTable } from '../../services/database/MetricTable';
-import { Route } from '../Route';
+import { MetricTable } from './../../services/database/MetricTable';
+import { Route } from './../Route';
 
 export class MetricList implements Route {
   async run(param: any) {
