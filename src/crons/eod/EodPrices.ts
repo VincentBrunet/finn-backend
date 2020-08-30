@@ -46,17 +46,17 @@ export class EodPrices extends Cron {
         continue;
       }
 
-      // Get existing values for ticker
-      const chunkTicker = await ValueTable.chunkTicker(ticker);
-
       // Query pricing API data
       const prices = await EodApi.prices(ticker.code);
       if (!prices) {
         continue;
       }
 
+      // Get existing values for ticker
+      const chunkTicker = await ValueTable.chunkTicker(ticker);
+
       // Group all pricing by period
-      let values: ValueShell[] = [];
+      const values: ValueShell[] = [];
       for (const price of prices) {
         const stamp = moment.utc(price.date).valueOf() as ValueStamp;
         for (const metric of metrics) {
@@ -71,9 +71,10 @@ export class EodPrices extends Cron {
       }
 
       // Decide mutations on DB
-      let inserts: ValueShell[] = [];
-      let updates: Value[] = [];
-      for (const value of values) {
+      const processed = await ValueTable.processingCleanup(values);
+      const inserts: ValueShell[] = [];
+      const updates: Value[] = [];
+      for (const value of processed) {
         const existing = chunkTicker.get(value.metric_id, value.stamp);
         if (existing) {
           if (value.value != existing.value || value.unit_id != existing.unit_id) {

@@ -1,6 +1,5 @@
 import { Branded } from './../struct/Branded';
 import { MapMap } from './../struct/MapMap';
-import { MapMapMap } from './../struct/MapMapMap';
 import { MetricId } from './Metric';
 import { TickerId } from './Ticker';
 import { UnitId } from './Unit';
@@ -20,4 +19,3 @@ export interface ValueShell {
 }
 
 export class ValueChunkTicker extends MapMap<MetricId, ValueStamp, Value> {}
-export class ValueChunkTickers extends MapMapMap<TickerId, MetricId, ValueStamp, Value> {}

@@ -1,4 +1,4 @@
-import { Ticker, TickerId, TickerShell } from './../../lib/data/Ticker';
+import { Ticker, TickerId, TickerShell, TickerType } from './../../lib/data/Ticker';
 import { Connection } from './Connection';
 
 export class TickerTable {
@@ -14,6 +14,14 @@ export class TickerTable {
   }
   static async insert(value: TickerShell) {
     await Connection.insert<TickerShell>(TickerTable.table, value);
+  }
+  /**
+   * Filtered reading
+   */
+  static async listCommonStocks() {
+    const connection = await Connection.connect();
+    const query = connection.select('*').from(TickerTable.table);
+    return await query.where('type', TickerType.CommonStock);
   }
   /**
    * Utils

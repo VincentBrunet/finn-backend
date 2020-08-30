@@ -70,8 +70,8 @@ export class ValueTable {
     return await query
       .select('*')
       .where('metric_id', metric.id)
-      .where('stamp', '>', stampMinMoment.valueOf())
-      .where('stamp', '<', stampMaxMoment.valueOf());
+      .where('stamp', '>=', stampMinMoment.valueOf())
+      .where('stamp', '<=', stampMaxMoment.valueOf());
   }
   static async listForTicker(ticker: Ticker): Promise<Value[]> {
     const connection = await Connection.connect();

@@ -24,8 +24,10 @@ export class EodMetas extends Cron {
         continue;
       }
 
+      // Get existing metas
       const metaForTicker = await MetaTable.mapByKeyForTicker(ticker);
 
+      // Found metas
       const metas: MetaShell[] = [];
 
       // Automated general keys meta infos

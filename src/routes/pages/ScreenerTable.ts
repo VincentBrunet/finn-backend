@@ -1,7 +1,7 @@
 import FuzzySearch from 'fuzzy-search';
 import moment from 'moment';
 
-import { Metric } from './../../lib/data/Metric';
+import { Metric, MetricPeriod } from './../../lib/data/Metric';
 import { Value } from './../../lib/data/Value';
 import { MetricTable } from './../../services/database/MetricTable';
 import { TickerTable } from './../../services/database/TickerTable';
@@ -10,27 +10,27 @@ import { Route } from './../Route';
 
 export class ScreenerTable implements Route {
   async run(param: any) {
-    const columns = ['Dividend', 'TotalRevenue', 'Profit'];
+    const columns = ['net-income', 'ebit', 'price'];
 
-    const tickers = await TickerTable.list();
+    const tickers = await TickerTable.listCommonStocks();
 
-    const metricList = await MetricTable.list();
-    const metricsSearcher = new FuzzySearch(metricList, ['name', 'category'], {
+    const metricList = await MetricTable.listForPeriod(MetricPeriod.Quarterly);
+    const metricsSearcher = new FuzzySearch(metricList, ['name'], {
       sort: true,
     });
 
-    const last = moment().subtract(1, 'quarter');
-    const min = moment(last).startOf('quarter');
+    const last = moment.utc().subtract(1, 'quarter');
+    const min = moment(last).endOf('quarter');
     const max = moment(last).endOf('quarter');
 
     const metricByColumn = new Map<string, Metric>();
     const valueByTickerIdByColumn = new Map<string, Map<number, Value>>();
     for (const column of columns) {
       const metrics = metricsSearcher.search(column);
-      if (metrics.length <= 1) {
+      if (metrics.length <= 0) {
         continue;
       }
-      const metric = metrics[1];
+      const metric = metrics[0];
       metricByColumn.set(column, metric);
       const values = await ValueTable.listForMetricAndStamp(metric, min, max);
       const valueByTickerId = new Map<number, Value>();

@@ -44,8 +44,8 @@ export class EodTickers extends Cron {
           continue;
         }
 
+        // Format the ticker
         const unit = await UnitTable.lookupByCode(symbol.Currency);
-
         const code = symbol.Code + '.' + exchange.code;
         const tickerShell: TickerShell = {
           unit_id: unit.id,
@@ -53,7 +53,6 @@ export class EodTickers extends Cron {
           code: code,
           type: tickerType,
           name: symbol.Name,
-          platform: platform,
         };
 
         const existing = tickersByCode.get(code);

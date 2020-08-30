@@ -23,4 +23,6 @@ export enum MetaName {
   Website = 'website',
   Category = 'category',
   Officer = 'officer',
+  Exchange = 'exchange',
+  Employees = 'employees',
 }

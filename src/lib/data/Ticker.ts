@@ -12,7 +12,6 @@ export interface TickerShell {
   type: TickerType;
   code: string;
   name: string;
-  platform: string;
 }
 
 export enum TickerType {

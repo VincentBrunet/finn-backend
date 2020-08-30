@@ -56,9 +56,7 @@ export class EodUtils {
     unit: Unit,
     chunkTicker: ValueChunkTicker
   ) {
-    const inserts: ValueShell[] = [];
-    const updates: Value[] = [];
-
+    const values: ValueShell[] = [];
     for (const key in data) {
       const object = data[key];
 
@@ -108,14 +106,22 @@ export class EodUtils {
           value: parseFloat(numberized.toPrecision(15)) as ValueValue,
         };
 
-        const existing = chunkTicker.get(metric.id, stamp as ValueStamp);
-        if (existing) {
-          if (existing.value !== value.value || existing.unit_id !== value.unit_id) {
-            updates.push({ id: existing.id, ...value });
-          }
-        } else {
-          inserts.push(value);
+        values.push(value);
+      }
+    }
+
+    // Decide mutations on DB
+    const processed = await ValueTable.processingCleanup(values);
+    const inserts: ValueShell[] = [];
+    const updates: Value[] = [];
+    for (const value of processed) {
+      const existing = chunkTicker.get(value.metric_id, value.stamp);
+      if (existing) {
+        if (existing.value !== value.value || existing.unit_id !== value.unit_id) {
+          updates.push({ id: existing.id, ...value });
         }
+      } else {
+        inserts.push(value);
       }
     }
 

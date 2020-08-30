@@ -33,7 +33,6 @@ export async function up(knex: Knex): Promise<any> {
       table.string('code', 31).notNullable();
       table.string('type', 31).notNullable();
       table.string('name', 512).notNullable();
-      table.string('platform', 31).notNullable();
 
       table.unique(['code']);
     })

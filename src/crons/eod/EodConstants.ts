@@ -149,6 +149,8 @@ export class EodConstants {
     ['Address', MetaName.Address],
     ['WebURL', MetaName.Website],
     ['HomeCategory', MetaName.Category],
+    ['Exchange', MetaName.Exchange],
+    ['FullTimeEmployees', MetaName.Employees],
   ]);
 
   static symbolExchangeWhitelist = new Set<string>([
